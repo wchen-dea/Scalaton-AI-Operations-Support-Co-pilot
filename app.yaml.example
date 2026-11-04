@@ -1,0 +1,38 @@
+# Databricks App definition — SCAFFOLD TEMPLATE (not yet deployable).
+#
+# This frontend is a Databricks App (custom interactive, auth-gated, chat surface).
+# The app is served by the Python/FastAPI backend, which is out of scope for this
+# scaffold (plan decision D3). Finalize this manifest with the `databricks-apps-python`
+# and `databricks-app-design` skills WHEN the FastAPI backend is implemented; the
+# `command` below runs that backend, which also serves the built frontend assets.
+#
+# Invariants (from databricks-apps instructions) that must hold once finalized:
+#  - Bind to the injected DATABRICKS_APP_PORT (never hardcode 8080). The FastAPI
+#    app should read DATABRICKS_APP_PORT and bind to it.
+#  - Reference every warehouse, Genie space, UC securable, secret, and peer app as
+#    a named resource and inject it via `valueFrom` — never paste IDs or secrets.
+#  - Request the minimum user_api_scopes for on-behalf-of (OBO) calls.
+#  - If the repo has a databricks.yml, deploy through Asset Bundles, not ad-hoc
+#    `databricks apps deploy`.
+
+command:
+  - "uvicorn"
+  - "app.main:app" # placeholder — the FastAPI entrypoint that serves ./frontend/dist
+  - "--host"
+  - "0.0.0.0"
+  # The app must bind to the injected DATABRICKS_APP_PORT at runtime.
+
+env:
+  # Frontend runs same-origin against the backend; no VITE_* needed at runtime
+  # because the frontend is pre-built. Backend configuration (model endpoints,
+  # Vector Search indexes, UC names, Teams/approval policy) is injected here.
+  - name: VITE_API_MODE
+    value: "live"
+
+# Example resource references (uncomment and declare in databricks.yml once known):
+# resources:
+#   - name: sql-warehouse
+#   - name: incident-secrets
+# Then inject with valueFrom in the backend configuration, e.g.:
+#   - name: SERVICENOW_WEBHOOK_SECRET
+#     valueFrom: incident-secrets

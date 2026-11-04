@@ -4,6 +4,22 @@ An intelligent, automated AI Support Co-pilot deployed as a native Databricks Ap
 
 By automating log analysis, runbook indexing, and cross-platform document drafting, this architecture shifts support staff from manual diagnostics to human-in-the-loop approvals.
 
+## Repository layout
+
+- [`frontend/`](frontend) — the operator console: a TypeScript + Vite + React single-page app (see [frontend/README.md](frontend/README.md)). Modeled on the [dbxmetagen](https://github.com/databricks-industry-solutions/dbxmetagen) dashboard and grounded in [`docs/`](docs).
+- [`docs/`](docs) — the authoritative [design specification](docs/design-specification.md) and [technology architecture](docs/technology-architecture.md).
+- [`app.yaml.example`](app.yaml.example) — Databricks App manifest scaffold template (finalized with the Python/FastAPI backend, which is a follow-up).
+
+### Frontend quick start
+
+```bash
+cd frontend
+npm install
+npm run dev     # runs in mock mode — no backend required
+```
+
+The frontend presents the operational lifecycle (Triage → War Room → Escalation → Change Request) plus a streaming Co-pilot chat, with every AI output shown as a proposal awaiting explicit human approval.
+
 ## Reference Architecture Topology
 
 The architecture leverages a containerized FastAPI application running inside Databricks Apps, powered entirely by secure, native Databricks Foundation Model APIs (Mosaic AI).

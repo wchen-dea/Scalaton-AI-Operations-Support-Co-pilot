@@ -49,5 +49,6 @@ Scalaton may analyze, summarize, and draft. It must not submit a change request,
 - [`../backend/README.md`](../backend/README.md) — API and orchestration implementation
 - [Design specification](scalaton-design-specification.md) — workflows, contracts, governance, reliability, and tests
 - [Technology architecture](scalaton-technology-architecture.md) — runtime layers, deployment, security, and operations
+- [Deployment guide](scalaton-deployment.md) — Databricks Asset Bundle and GitHub Actions deployment to dev/qa/stg/prod
 
 Historical implementation plans, reviews, and change records are stored under [`../.copilot-tracking/`](../.copilot-tracking/). They preserve implementation history and should be interpreted against the current BRD, PRD, and ADR.

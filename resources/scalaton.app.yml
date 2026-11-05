@@ -1,0 +1,46 @@
+# Databricks App resource for Scalaton.
+#
+# App env vars live in app.yaml (the app source), not here — this resource stays
+# minimal (name, description, source_code_path) and declares the governed app
+# resources the app references via `valueFrom` in app.yaml.
+#
+# Path resolution: this file is under resources/, so `..` reaches the bundle root,
+# which holds app.yaml, backend/, and the built frontend/dist.
+
+resources:
+  apps:
+    scalaton:
+      name: ${var.app_name}
+      description: "Scalaton AI Operations Support Co-pilot — FastAPI + React on Databricks Apps."
+      source_code_path: ..
+
+      # Governed resources injected into the app as environment variables via
+      # `valueFrom: <resource name>` in app.yaml. Per-environment IDs and the secret
+      # scope come from bundle variables; nothing sensitive is committed.
+      resources:
+        - name: sql-warehouse
+          description: "Serverless SQL warehouse for governed diagnostics."
+          sql_warehouse:
+            id: ${var.warehouse_id}
+            permission: CAN_USE
+
+        - name: servicenow-webhook-secret
+          description: "ServiceNow webhook signing secret."
+          secret:
+            scope: ${var.secret_scope}
+            key: servicenow_webhook_secret
+            permission: READ
+
+        - name: jira-webhook-secret
+          description: "Jira webhook signing secret."
+          secret:
+            scope: ${var.secret_scope}
+            key: jira_webhook_secret
+            permission: READ
+
+        - name: skybot-webhook-secret
+          description: "Skybot webhook signing secret."
+          secret:
+            scope: ${var.secret_scope}
+            key: skybot_webhook_secret
+            permission: READ

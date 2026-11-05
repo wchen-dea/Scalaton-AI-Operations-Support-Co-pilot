@@ -10,6 +10,8 @@ By automating log analysis, runbook indexing, and cross-platform document drafti
 - [`backend/`](backend) — the Python + FastAPI + LangGraph backend scaffold (see [backend/README.md](backend/README.md)). Serves the frontend's `/api/*` contract and the built `frontend/dist`, and encodes the incident workflow as a LangGraph multi-agent orchestration. Every Databricks, MCP, Genie, and connector integration sits behind a typed stub interface, so it runs with no live dependencies.
 - [`docs/`](docs) — the [AI SDLC documentation index](docs/README.md), design specification, technology architecture, and governed [BRD](docs/scalaton-business-requirements-document.md), [PRD](docs/scalaton-product-requirements-document.md), and [ADR](docs/scalaton-adr-001-governed-human-in-the-loop-architecture.md).
 - [`app.yaml`](app.yaml) — the deployable Databricks App manifest (runs the FastAPI backend, which serves the built frontend). [`app.yaml.example`](app.yaml.example) remains as the annotated template.
+- [`databricks.yml`](databricks.yml) and [`resources/`](resources) — the Databricks Asset Bundle that deploys the app to `dev`/`qa`/`stg`/`prod`. See the [deployment guide](docs/scalaton-deployment.md).
+- [`.github/workflows/`](.github/workflows) — the GitHub Actions pipeline that builds, tests, validates, and deploys the bundle with gated promotion and a production approval.
 
 ### Frontend quick start
 

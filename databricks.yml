@@ -1,0 +1,92 @@
+# Databricks Asset Bundle for the Agentic AI Operations Support System (Scalaton).
+#
+# Deploys the Databricks App defined in app.yaml (FastAPI backend serving the built
+# frontend/dist) to four separate workspaces: dev, qa, stg, prod.
+#
+# Authentication: each target authenticates through the CLI environment or a profile.
+# CI jobs export that environment's DATABRICKS_HOST plus OAuth DATABRICKS_CLIENT_ID /
+# DATABRICKS_CLIENT_SECRET; local developers select a per-environment CLI profile.
+# No workspace host or secret is committed here.
+
+bundle:
+  name: scalaton
+
+include:
+  - resources/*.yml
+
+# source_code_path for the app resolves to the repository root (see
+# resources/scalaton.app.yml), so bound the uploaded source: force-include the
+# git-ignored frontend build and exclude CI, tracking, docs, caches, tests, and
+# dependency trees.
+sync:
+  include:
+    - frontend/dist/**
+  exclude:
+    - .github/**
+    - .copilot-tracking/**
+    - docs/**
+    - .env*
+    - .databricks/**
+    - "**/.venv/**"
+    - "**/node_modules/**"
+    - "**/__pycache__/**"
+    - "**/.pytest_cache/**"
+    - backend/tests/**
+
+variables:
+  app_name:
+    description: "Databricks App name: lowercase letters, digits, hyphens; <=30 chars. Workspace-global, so distinct per environment."
+  secret_scope:
+    description: "Databricks secret scope holding this environment's connector webhook secrets and per-environment configuration keys."
+  warehouse_id:
+    description: "Serverless SQL warehouse ID used for governed diagnostics (tech-arch §5)."
+    default: ""
+  genie_space:
+    description: "Genie space identifier (Release 2 live integrations; stubbed in Release 1)."
+    default: ""
+  vector_search_index:
+    description: "Mosaic AI Vector Search index identifier (Release 2 live integrations; stubbed in Release 1)."
+    default: ""
+  uc_catalog:
+    description: "Unity Catalog catalog name for this environment (provisioned per environment)."
+    default: ""
+  uc_schema:
+    description: "Unity Catalog schema name for this environment (provisioned per environment)."
+    default: ""
+  enable_external_writes:
+    description: "Feature flag for external writes. Stays false in every environment until the PRD-SCALATON-001 §7 Release 2 gate (enabled later by a governed change)."
+    default: "false"
+
+targets:
+  # Non-production default. `mode: development` eases iterative deploys; it does not
+  # auto-namespace App names, so app_name is still explicit and distinct.
+  dev:
+    default: true
+    mode: development
+    variables:
+      app_name: scalaton-dev
+      secret_scope: scalaton-dev
+
+  qa:
+    mode: production
+    workspace:
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      app_name: scalaton-qa
+      secret_scope: scalaton-qa
+
+  stg:
+    mode: production
+    workspace:
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      app_name: scalaton-stg
+      secret_scope: scalaton-stg
+
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      app_name: scalaton-prod
+      secret_scope: scalaton-prod

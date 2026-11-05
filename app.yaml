@@ -25,6 +25,7 @@ env:
 
   # Non-secret configuration (tech-arch §10). Names only — never secrets.
   - name: ENABLE_EXTERNAL_WRITES
+    # Stays false in every environment until the PRD §7 Release 2 gate (governed change).
     value: "false"
   - name: USE_LIVE_INTEGRATIONS
     value: "false"
@@ -41,20 +42,25 @@ env:
   - name: APPROVAL_POLICY
     value: "teams"
 
-  # Resource- and secret-backed values are injected via valueFrom once the resources are
-  # declared (uncomment and point at the named resources for your workspace):
+  # Resource- and secret-backed values, injected from the app resources declared in
+  # resources/scalaton.app.yml (per-environment IDs and secret scope come from bundle
+  # variables). valueFrom references the app resource by name.
+  - name: SQL_WAREHOUSE_ID
+    valueFrom: sql-warehouse
+  - name: SERVICENOW_WEBHOOK_SECRET
+    valueFrom: servicenow-webhook-secret
+  - name: JIRA_WEBHOOK_SECRET
+    valueFrom: jira-webhook-secret
+  - name: SKYBOT_WEBHOOK_SECRET
+    valueFrom: skybot-webhook-secret
+
+  # Release 2 live-integration resources (stubbed in Release 1). Declare matching app
+  # resources (genie_space / Vector Search index) in resources/scalaton.app.yml and
+  # activate these when live integrations are enabled:
   # - name: VECTOR_SEARCH_INDEX
   #   valueFrom: vector-search-index
-  # - name: SQL_WAREHOUSE_ID
-  #   valueFrom: sql-warehouse
   # - name: GENIE_SPACE
   #   valueFrom: genie-space
-  # - name: SERVICENOW_WEBHOOK_SECRET
-  #   valueFrom: incident-secrets
-  # - name: JIRA_WEBHOOK_SECRET
-  #   valueFrom: incident-secrets
-  # - name: SKYBOT_WEBHOOK_SECRET
-  #   valueFrom: incident-secrets
 
-# Declare the matching resources (warehouse, Genie space, secret scope, UC securables)
-# in a databricks.yml Asset Bundle, then inject them above via valueFrom.
+# The matching resources (SQL warehouse, secret scope) are declared in
+# resources/scalaton.app.yml and provisioned per environment by the platform owner.

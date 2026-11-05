@@ -1,0 +1,61 @@
+name: Bundle deploy (reusable)
+
+# Reusable job that validates and deploys the DAB to one environment using that
+# GitHub Environment's OAuth machine-to-machine service-principal credentials.
+# Called by deploy.yml; the environment's protection rules (e.g. required reviewers
+# on prod) gate this job before it runs.
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: "Bundle target (dev/qa/stg/prod)."
+        type: string
+        required: true
+      environment:
+        description: "GitHub Environment holding this workspace's secrets."
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Validate and deploy ${{ inputs.target }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      # OAuth M2M service principal for this environment's workspace. Stored as
+      # GitHub Environment secrets; the Databricks CLI reads these automatically.
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce promotion from the default branch
+        if: inputs.target != 'dev'
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Promotion to '${{ inputs.target }}' must run from the main branch (got ${GITHUB_REF})." >&2
+            exit 1
+          fi
+
+      - name: Download built frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Set up Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate bundle
+        run: databricks bundle validate --strict --target ${{ inputs.target }}
+
+      - name: Deploy bundle
+        run: databricks bundle deploy --target ${{ inputs.target }}
+
+      - name: Start and verify the app
+        run: databricks bundle run scalaton --target ${{ inputs.target }}

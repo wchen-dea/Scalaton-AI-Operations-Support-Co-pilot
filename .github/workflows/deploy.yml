@@ -1,0 +1,80 @@
+name: Deploy (Databricks Asset Bundle)
+
+# Build, test, and deploy the Scalaton Databricks App through the DAB.
+#   - push to dev                -> build + test, then auto-deploy `dev`
+#   - manual workflow_dispatch     -> build + test the chosen ref, then deploy the
+#                                     selected environment (qa/stg/prod) with that
+#                                     environment's protection rules (prod requires
+#                                     Run promotions from `dev`.
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy (promote from dev)."
+        type: choice
+        options: [qa, stg, prod]
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build and test frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+          npm test
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Test backend
+        working-directory: backend
+        run: |
+          uv sync --extra dev
+          uv run pytest
+
+      - name: Upload built frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy-dev:
+    name: Deploy dev
+    needs: build-test
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/_bundle-deploy.yml
+    with:
+      target: dev
+      environment: dev
+    secrets: inherit
+
+  deploy-promote:
+    name: Deploy ${{ inputs.environment }}
+    needs: build-test
+    if: github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/_bundle-deploy.yml
+    with:
+      target: ${{ inputs.environment }}
+      environment: ${{ inputs.environment }}
+    secrets: inherit

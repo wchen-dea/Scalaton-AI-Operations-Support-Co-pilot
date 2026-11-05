@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-file -->
-# RPI Changes: Scaffold the AI Ops Support System frontend
+# RPI Changes: Scaffold the Scalaton AI Operations Support Co-pilot frontend
 
 ## Metadata
 
@@ -158,7 +158,7 @@ One entry per completed plan item, under a descriptive heading.
 | `npm run build` (`tsc -b && vite build`) | full frontend | Passed | 33 modules transformed; `dist/` emitted with Tailwind CSS |
 | `npm test` (Vitest) | pure SSE reducer | Passed | 6/6 tests: delta append, id-replay dedup, trailing-text dedup, terminal states, error message, `isTerminal` |
 | `npm run lint` (oxlint) | full frontend | Passed | Exit 0; one benign generic-hook `exhaustive-deps` warning in `useAsync` |
-| `npm run preview` serve check | built app | Passed | HTTP 200, `<title>AI Ops Support System</title>` |
+| `npm run preview` serve check | built app | Passed | HTTP 200, `<title>Scalaton AI Operations Support Co-pilot</title>` |
 | `npm audit` | dependencies | Passed | 0 vulnerabilities after Vitest 4 upgrade |
 
 ## Pre-Review Reconciliation

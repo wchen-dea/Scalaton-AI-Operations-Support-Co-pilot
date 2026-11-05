@@ -1,6 +1,6 @@
-# Agentic AI Operations Support System on Databricks Apps
+# Scalaton AI Operations Support Co-pilot
 
-An intelligent, automated AI Support Co-pilot deployed as a native Databricks App. The system operates safely inside the enterprise data perimeter and bridges infrastructure alerting (Skybot), enterprise service management (ServiceNow), engineering project management (Jira), and cross-functional team communications (Microsoft Teams).
+Scalaton is an intelligent, automated AI Operations Support Co-pilot deployed as a native Databricks App. It operates inside the enterprise data perimeter and bridges infrastructure alerting (Skybot), enterprise service management (ServiceNow), engineering project management (Jira), and cross-functional team communications (Microsoft Teams).
 
 By automating log analysis, runbook indexing, and cross-platform document drafting, this architecture shifts support staff from manual diagnostics to human-in-the-loop approvals.
 
@@ -8,7 +8,7 @@ By automating log analysis, runbook indexing, and cross-platform document drafti
 
 - [`frontend/`](frontend) — the operator console: a TypeScript + Vite + React single-page app (see [frontend/README.md](frontend/README.md)). Modeled on the [dbxmetagen](https://github.com/databricks-industry-solutions/dbxmetagen) dashboard and grounded in [`docs/`](docs).
 - [`backend/`](backend) — the Python + FastAPI + LangGraph backend scaffold (see [backend/README.md](backend/README.md)). Serves the frontend's `/api/*` contract and the built `frontend/dist`, and encodes the incident workflow as a LangGraph multi-agent orchestration. Every Databricks, MCP, Genie, and connector integration sits behind a typed stub interface, so it runs with no live dependencies.
-- [`docs/`](docs) — the authoritative [design specification](docs/design-specification.md) and [technology architecture](docs/technology-architecture.md).
+- [`docs/`](docs) — the [AI SDLC documentation index](docs/README.md), design specification, technology architecture, and governed [BRD](docs/scalaton-business-requirements-document.md), [PRD](docs/scalaton-product-requirements-document.md), and [ADR](docs/scalaton-adr-001-governed-human-in-the-loop-architecture.md).
 - [`app.yaml`](app.yaml) — the deployable Databricks App manifest (runs the FastAPI backend, which serves the built frontend). [`app.yaml.example`](app.yaml.example) remains as the annotated template.
 
 ### Frontend quick start
@@ -19,7 +19,7 @@ npm install
 npm run dev     # runs in mock mode — no backend required
 ```
 
-The frontend presents the operational lifecycle (Triage → War Room → Escalation → Change Request) plus a streaming Co-pilot chat, with every AI output shown as a proposal awaiting explicit human approval.
+The frontend presents the operational lifecycle (Triage → War Room → Escalation → Change Request) plus a streaming Co-pilot chat. Every AI output is a proposal awaiting explicit human approval; Microsoft Teams is the authoritative approval surface.
 
 ### Backend quick start
 

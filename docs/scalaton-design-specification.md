@@ -1,8 +1,12 @@
-# Agentic AI Operations Support System — Design Specification
+# Scalaton — Design Specification
 
 ## 1. Purpose
 
-This document defines the target design for an AI operations support co-pilot deployed as a native Databricks App. The system automates incident triage and cross-platform support workflows while keeping human approval for operationally significant actions.
+This document defines the target design for the Scalaton AI Operations Support Co-pilot deployed as a native Databricks App. Scalaton automates incident triage and cross-platform support workflows while keeping human approval for operationally significant actions.
+
+This specification is governed by the [BRD](scalaton-business-requirements-document.md), [PRD](scalaton-product-requirements-document.md), and [ADR](scalaton-adr-001-governed-human-in-the-loop-architecture.md).
+
+The document is the Release 1 engineering specification in the AI SDLC. It translates the approved business and product requirements into workflows, data contracts, governance controls, reliability behavior, and testable acceptance criteria. See the [AI SDLC documentation index](README.md) for the complete document order.
 
 ## 2. Goals and non-goals
 

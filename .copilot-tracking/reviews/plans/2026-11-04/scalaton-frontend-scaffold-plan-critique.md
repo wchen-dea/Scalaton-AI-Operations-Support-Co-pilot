@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-file -->
-# RPI Plan Critique: Scaffold the AI Ops Support System frontend
+# RPI Plan Critique: Scaffold the Scalaton AI Operations Support Co-pilot frontend
 
 ## Metadata
 
@@ -15,7 +15,7 @@
 ## Inputs and Criterion Boundary
 
 * Task context and caller requirements: Independent STANDARD readiness critique of the frontend scaffold plan. Assess against supplied evidence; do not re-plan; honor resolved decisions D1 (TSX + Vite + React + Tailwind), D2 (top-level `frontend/`), D3 (frontend-only: documented contract + mock data + dev proxy) as authoritative.
-* Research and evidence considered: README.md; docs/design-specification.md; docs/technology-architecture.md; .copilot/instructions/react-typescript-streaming-frontend.instructions.md; .copilot/instructions/databricks-apps.instructions.md; repository file listing (git-tracked set: README.md, docs/design-specification.md, docs/technology-architecture.md); dbxmetagen reference patterns as described in the plan's Sources.
+* Research and evidence considered: README.md; docs/scalaton-design-specification.md; docs/scalaton-technology-architecture.md; .copilot/instructions/react-typescript-streaming-frontend.instructions.md; .copilot/instructions/databricks-apps.instructions.md; repository file listing (git-tracked set: README.md, docs/scalaton-design-specification.md, docs/scalaton-technology-architecture.md); dbxmetagen reference patterns as described in the plan's Sources.
 * Decisions, dependencies, task Goals, and task Requirements considered: D1-D3 (confirmed); FR-001..FR-010; NFR-001..NFR-005; phases P01-P05 and their tasks; plan Dependencies (illustrative API contract); Risks table.
 * Assessment boundary: The critique covers the full supplied plan boundary (foundation, shell/navigation, transport/data layer, domain views, Databricks App wiring) against the actual repository evidence. It can conclude whether the plan's evidence base, contracts, and acceptance coverage are credible for implementation. It does not evaluate the dbxmetagen reference internals beyond what the plan quotes, and it does not re-open D1-D3.
 
@@ -39,7 +39,7 @@
 ## Verdict
 
 * Verdict: Revise
-* Rationale: The plan's domain reasoning (lifecycle IA, SSE discipline, Databricks invariants) is sound, but it is grounded on an incorrect evidence base: it cites a non-existent architecture file, misstates the repository contents, and invents an API/wire contract while ignoring the authoritative data contracts, HITL requirements, and acceptance criteria that already exist in docs/design-specification.md and docs/technology-architecture.md. Those gaps materially affect P03 wire types (a core, no-`any` deliverable) and the P04 approval surfaces, so the plan needs revision before implementation.
+* Rationale: The plan's domain reasoning (lifecycle IA, SSE discipline, Databricks invariants) is sound, but it is grounded on an incorrect evidence base: it cites a non-existent architecture file, misstates the repository contents, and invents an API/wire contract while ignoring the authoritative data contracts, HITL requirements, and acceptance criteria that already exist in docs/scalaton-design-specification.md and docs/scalaton-technology-architecture.md. Those gaps materially affect P03 wire types (a core, no-`any` deliverable) and the P04 approval surfaces, so the plan needs revision before implementation.
 
 ## Findings
 
@@ -47,22 +47,22 @@
 ### PC-001 [blocking]: Plan is grounded on a non-existent architecture file and a false repository-contents claim
 
 * Related IDs: Sources, Dependencies, P02-T02, P04-T01, P04-T02 References
-* Evidence: The plan references `AI_Ops_Support_System_Architecture/AI_Ops_Support_System_Architecture.md` throughout (P02-T02, P04-T01, P04-T02 References; Sources). That path does not exist. `git ls-files` returns only `README.md`, `docs/design-specification.md`, `docs/technology-architecture.md`; `find . -iname '*architecture*'` returns only `docs/technology-architecture.md`. The plan's Sources further asserts the repo "contains only `README.md`, the architecture `.docx`, and its converted Markdown" — there is no `.docx` and two distinct spec documents exist under `docs/`.
+* Evidence: The plan references `AI_Ops_Support_System_Architecture/AI_Ops_Support_System_Architecture.md` throughout (P02-T02, P04-T01, P04-T02 References; Sources). That path does not exist. `git ls-files` returns only `README.md`, `docs/scalaton-design-specification.md`, `docs/scalaton-technology-architecture.md`; `find . -iname '*architecture*'` returns only `docs/scalaton-technology-architecture.md`. The plan's Sources further asserts the repo "contains only `README.md`, the architecture `.docx`, and its converted Markdown" — there is no `.docx` and two distinct spec documents exist under `docs/`.
 * Concern: The plan's primary architecture evidence links are all broken, and the stated source inventory is factually wrong, indicating the plan was drafted against a stale snapshot rather than the current repository. Downstream reasoning that claims to be "evidence-backed" from the architecture is not traceable to a real artifact.
 * Impact: Every architecture-anchored task points at a dead reference; a reviewer or implementer cannot verify the IA, contracts, or acceptance claims. It also conceals that richer, authoritative specs (data contracts, HITL rules, acceptance criteria) were available and unused (see PC-002, PC-003).
-* Smallest useful change: Re-point all architecture References to `docs/design-specification.md` and `docs/technology-architecture.md`, correct the Sources inventory, and re-ground P02/P03/P04 claims on those files.
+* Smallest useful change: Re-point all architecture References to `docs/scalaton-design-specification.md` and `docs/scalaton-technology-architecture.md`, correct the Sources inventory, and re-ground P02/P03/P04 claims on those files.
 * Action owner: planning parent
-* Exact resolving evidence: Plan References/Sources cite `docs/design-specification.md` and `docs/technology-architecture.md` with valid workspace-relative links; no reference resolves to a non-existent path.
+* Exact resolving evidence: Plan References/Sources cite `docs/scalaton-design-specification.md` and `docs/scalaton-technology-architecture.md` with valid workspace-relative links; no reference resolves to a non-existent path.
 * Decision route: direct planner correction
 
 <!-- rpi:critique id=PC-002 -->
 ### PC-002 [blocking]: The "documented API contract" is invented and contradicts the real spec contracts and backend route surface
 
 * Related IDs: Dependencies, P03-T01, D3, FR-005, NFR-002
-* Evidence: The plan's Dependencies block defines an illustrative browser REST surface (`GET /api/incidents`, `GET /api/incidents/{id}`, `POST /api/operations`, `POST /api/escalations/jira`, `GET /api/change-requests/{id}`, `POST /api/copilot/stream`). The repository already documents authoritative data contracts — `docs/design-specification.md` §5 (`Incident event`, `Diagnosis result` with `summary`, `probable_causes[]`, `recommended_actions[]`, `unknowns[]`, `source_references[]`) — and `docs/technology-architecture.md` §4.1 defines the actual FastAPI route groups (`/webhooks/servicenow`, `/webhooks/jira`, `/webhooks/skybot`, `/actions/teams`, `/health/live`, `/health/ready`). The documented backend is webhook/action-oriented, not a browser-facing read/approve API.
+* Evidence: The plan's Dependencies block defines an illustrative browser REST surface (`GET /api/incidents`, `GET /api/incidents/{id}`, `POST /api/operations`, `POST /api/escalations/jira`, `GET /api/change-requests/{id}`, `POST /api/copilot/stream`). The repository already documents authoritative data contracts — `docs/scalaton-design-specification.md` §5 (`Incident event`, `Diagnosis result` with `summary`, `probable_causes[]`, `recommended_actions[]`, `unknowns[]`, `source_references[]`) — and `docs/scalaton-technology-architecture.md` §4.1 defines the actual FastAPI route groups (`/webhooks/servicenow`, `/webhooks/jira`, `/webhooks/skybot`, `/actions/teams`, `/health/live`, `/health/ready`). The documented backend is webhook/action-oriented, not a browser-facing read/approve API.
 * Concern: D3's frontend-only approach hinges on a "documented API contract" the data layer targets, and NFR-002/FR-005 require typed wire contracts with no `any`. The plan builds those on types it invented (`Incident`, `IncidentDetail`, `ChangeRequestDraft`) rather than the in-repo schemas, and the browser endpoints it lists do not exist in the documented backend surface — they are a net-new backend-for-frontend layer the plan never acknowledges as net-new.
 * Impact: P03 wire types will mismatch the real `Diagnosis result`/`Incident event` schemas the Triage/War Room/approval views must render, guaranteeing rework; and the plan silently introduces an un-decided new API surface that diverges from the webhook/Teams architecture, which may need backend-owner agreement.
-* Smallest useful change: Derive P03 wire types and the Dependencies contract from `docs/design-specification.md` §5 schemas; explicitly label the browser read/approve/stream endpoints as a new frontend-facing (BFF) surface distinct from the documented webhook backend, and flag that surface for backend-owner confirmation.
+* Smallest useful change: Derive P03 wire types and the Dependencies contract from `docs/scalaton-design-specification.md` §5 schemas; explicitly label the browser read/approve/stream endpoints as a new frontend-facing (BFF) surface distinct from the documented webhook backend, and flag that surface for backend-owner confirmation.
 * Action owner: planning parent (grounding types) + user/backend-owner (confirming the net-new browser API surface)
 * Exact resolving evidence: P03-T01/Dependencies cite the §5 schemas as the basis for wire types, and the plan states the browser-facing endpoints are a new BFF surface pending backend-owner confirmation rather than "the documented backend contract."
 * Decision route: direct planner correction for type grounding; significant/divergent user decision for introducing the new browser-facing API surface
@@ -71,7 +71,7 @@
 ### PC-003 [major]: Approval views under-specified against the spec's human-in-the-loop requirements and acceptance criteria
 
 * Related IDs: P04-T02, FR-008, NFR (validation lock)
-* Evidence: `docs/design-specification.md` §8 requires approval controls to show "the exact proposed action, affected records, evidence, risk, and rollback information," and §9 requires that "no external change is submitted without an auditable approval." The plan's P04-T02 lists only "code diff, risk assessment, validation logs" for the Change Request and a generic proposal indication for Jira escalation; it omits affected-records, evidence, and rollback, and does not tie FR-008 to the §9 acceptance criterion.
+* Evidence: `docs/scalaton-design-specification.md` §8 requires approval controls to show "the exact proposed action, affected records, evidence, risk, and rollback information," and §9 requires that "no external change is submitted without an auditable approval." The plan's P04-T02 lists only "code diff, risk assessment, validation logs" for the Change Request and a generic proposal indication for Jira escalation; it omits affected-records, evidence, and rollback, and does not tie FR-008 to the §9 acceptance criterion.
 * Concern: The defining product property (human-in-the-loop approval) has concrete required fields and an acceptance test in the supplied spec that the plan does not fully reflect, so the scaffolded approval surface may not express the mandated decision context.
 * Impact: Placeholder approval views risk being redesigned once §8/§9 are applied; acceptance traceability for the core approval flow is missing.
 * Smallest useful change: Expand P04-T02 requirements to render the §8 field set (proposed action, affected records, evidence, risk, rollback) and reference §9 acceptance (auditable approval) as the view's acceptance basis.
@@ -83,7 +83,7 @@
 ### PC-004 [major]: The web-SPA operator surface is presented as evidence-backed, but the specs place the human interface in Microsoft Teams
 
 * Related IDs: Executive Summary, P02, P04, Risks table
-* Evidence: README Phases 2-4 and `docs/design-specification.md` §4.2 describe the operator interaction surface as Microsoft Teams Adaptive Cards (war-room card with on-demand actions, "Create Jira Bug" in Teams, "Approve and Submit" in Teams). Neither spec describes a web operator console. The plan's Executive Summary and Confidence notes call the target-domain IA "evidence-backed," and the Risks table does not record that the web surface itself is net-new relative to the documented design.
+* Evidence: README Phases 2-4 and `docs/scalaton-design-specification.md` §4.2 describe the operator interaction surface as Microsoft Teams Adaptive Cards (war-room card with on-demand actions, "Create Jira Bug" in Teams, "Approve and Submit" in Teams). Neither spec describes a web operator console. The plan's Executive Summary and Confidence notes call the target-domain IA "evidence-backed," and the Risks table does not record that the web surface itself is net-new relative to the documented design.
 * Concern: The lifecycle phases are evidenced, but the web-tab surface rendering those phases is an inference by analogy to dbxmetagen, not something the specs describe. Conflating the two overstates evidence grounding.
 * Impact: Stakeholders may assume the SPA surface is specified when it is a new product decision; if the Teams-based interaction model remains authoritative, parts of the SPA scope could be redundant or need realignment.
 * Smallest useful change: Add a Risks/assumptions entry stating the web operator surface is net-new versus the documented Teams-based HITL design (authorized by the user's scaffold request), and soften "evidence-backed IA" to distinguish evidenced phases from the inferred web surface.
@@ -131,7 +131,7 @@
 ### PC-008 [minor]: Environment-config module not grounded in the spec's required configuration categories
 
 * Related IDs: P01-T02, FR-006, NFR-001
-* Evidence: `docs/technology-architecture.md` §10 enumerates required configuration categories (approved external base URLs, model endpoint names/timeouts, Vector Search index identifiers, Unity Catalog catalog/schema names, retry/rate-limit settings, Teams channel/approval-policy identifiers, feature flags with "external writes disabled by default in development and test"). P01-T02 scopes the env-config module to an API base URL only.
+* Evidence: `docs/scalaton-technology-architecture.md` §10 enumerates required configuration categories (approved external base URLs, model endpoint names/timeouts, Vector Search index identifiers, Unity Catalog catalog/schema names, retry/rate-limit settings, Teams channel/approval-policy identifiers, feature flags with "external writes disabled by default in development and test"). P01-T02 scopes the env-config module to an API base URL only.
 * Concern: The single env-config module and `.env.example` can be grounded in the real, frontend-relevant subset of §10 rather than just a base URL, improving fidelity without over-scoping backend config.
 * Impact: Minor; a thin env module may need expansion once real config categories apply, but no implementation blocker.
 * Smallest useful change: Reference §10 in P01-T02 and seed `.env.example` with the frontend-relevant categories (e.g., API base URL, feature flags such as mock-vs-live and external-writes-disabled defaults).
@@ -155,8 +155,8 @@
 * dbxmetagen reference internals were assessed only as quoted in the plan's Sources; the external repo was not fetched.
 
 | [.copilot-tracking/plans/2026-11-04/scaffold-frontend-plan.md](.copilot-tracking/plans/2026-11-04/scaffold-frontend-plan.md) | The implementation plan under critique |
-| [docs/design-specification.md](docs/design-specification.md) | Authoritative data contracts (§5), HITL requirements (§8), acceptance criteria (§9) |
-| [docs/technology-architecture.md](docs/technology-architecture.md) | FastAPI route surface (§4.1), deployment topology (§7), environment configuration (§10) |
+| [docs/scalaton-design-specification.md](docs/scalaton-design-specification.md) | Authoritative data contracts (§5), HITL requirements (§8), acceptance criteria (§9) |
+| [docs/scalaton-technology-architecture.md](docs/scalaton-technology-architecture.md) | FastAPI route surface (§4.1), deployment topology (§7), environment configuration (§10) |
 | [README.md](README.md) | Project description and four-phase operational lifecycle |
 
 ## Next Steps

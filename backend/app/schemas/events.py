@@ -1,6 +1,6 @@
 """Authoritative `design §5` data contracts.
 
-These models mirror `docs/design-specification.md` §5 verbatim; they are system
+These models mirror `docs/scalaton-design-specification.md` §5 verbatim; they are system
 contracts, not invented here. Model output is validated against `DiagnosisResult`
 before it may leave an agent toward any external system.
 """

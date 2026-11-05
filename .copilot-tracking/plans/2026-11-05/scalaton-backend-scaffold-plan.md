@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-file -->
-# RPI Plan: Scaffold the AI Ops Support System FastAPI + LangGraph backend
+# RPI Plan: Scaffold the Scalaton AI Operations Support Co-pilot FastAPI + LangGraph backend
 
 ## Task Metadata
 
@@ -9,18 +9,18 @@
 
 ## Executive Summary
 
-* Bottom line: Stand up a buildable, runnable Python/FastAPI backend scaffold for the Agentic AI Operations Support System — a LangGraph multi-agent orchestrator, the design-spec route surface, typed data contracts, an intelligence/integration layer (Mosaic AI, Vector Search, Unity Catalog, Databricks AI Functions), an MCP connection layer, Genie integration, an AI research agent, external connectors, and the security/audit/reliability/observability primitives the specifications require — structured so each capability has a typed interface and the whole app runs locally without live external dependencies.
-* Why this matters: The repository has an authoritative design ([docs/design-specification.md](../../../docs/design-specification.md), [docs/technology-architecture.md](../../../docs/technology-architecture.md)) and a complete mock-backed frontend ([frontend/](../../../frontend)) whose browser contract already targets a backend that does not exist yet. A coherent backend scaffold turns the specifications into a concrete, extensible runtime that serves the frontend's `/api/*` contract, encodes the LangGraph workflow and agent boundaries, and provides the MCP/Genie/AI-function connection points the user asked for — so feature work proceeds without re-litigating structure, contracts, or the integration model.
-* Planning result: Complete and revised after one `standard` independent critique (Verdict: Revise — 1 blocking, 5 major, 1 minor; all findings disposed). The four foundational decisions are resolved (D1 `backend/` layout, D2 `uv` + `pyproject.toml`, D3 structured skeleton with local stubs, D4 Databricks-managed MCP servers); the blocking finding (PC-001, approval authority) is resolved by D6 (Teams authoritative; browser console is a proposal surface). Seven phases (P01-P07) with diagrams are in place and the plan is implementation-ready.
+* Bottom line: Stand up a buildable, runnable Python/FastAPI backend scaffold for the Scalaton AI Operations Support Co-pilot — a LangGraph multi-agent orchestrator, the design-spec route surface, typed data contracts, an intelligence/integration layer (Mosaic AI, Vector Search, Unity Catalog, Databricks AI Functions), an MCP connection layer, Genie integration, an AI research agent, external connectors, and the security/audit/reliability/observability primitives the specifications require — structured so each capability has a typed interface and the whole app runs locally without live external dependencies.
+* Why this matters: The repository has an authoritative design ([docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md), [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md)) and a complete mock-backed frontend ([frontend/](../../../frontend)) whose browser contract already targets a backend that does not exist yet. A coherent backend scaffold turns the specifications into a concrete, extensible runtime that serves the frontend's `/api/*` contract, encodes the LangGraph workflow and agent boundaries, and provides the MCP/Genie/AI-function connection points the user asked for — so feature work proceeds without re-litigating structure, contracts, or the integration model.
+* Planning result: Complete and revised after one `standard` independent critique (Verdict: Revise — 1 blocking, 5 major, 1 minor; all findings disposed). The four foundational decisions are resolved (D1 `backend/` layout, D2 `uv` + `pyproject.toml`, D3 structured Release 1 scaffold with local stubs, D4 Databricks-managed MCP servers); the blocking finding (PC-001, approval authority) is resolved by D6 (Teams authoritative; browser console is a proposal surface). Seven phases (P01-P07) with diagrams are in place and the plan is implementation-ready.
 * Confidence and uncertainty: High confidence in the required route surface, LangGraph states, agent boundaries, and data contracts (all specification-defined) and in the frontend's net-new BFF contract (read from the committed frontend transport layer). Residual uncertainty is deliberate and recorded: the BFF contract is net-new pending backend-owner confirmation, and the managed-MCP/Genie/AI-function endpoints are real integrations deferred behind stub interfaces (D3), so the scaffold runs locally without them.
 
 ### What You May Not Know
 
-* The authoritative sources are [docs/design-specification.md](../../../docs/design-specification.md) and [docs/technology-architecture.md](../../../docs/technology-architecture.md). They define the FastAPI route groups (`tech-arch §4.1`), the LangGraph workflow states (`tech-arch §4.2`), the six agent boundaries (`tech-arch §4.3`), the data contracts (`design §5`), and the security, reliability, and configuration requirements. Neither file carries a frontmatter `status`; both are treated as current working specifications.
+* The authoritative sources are [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) and [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md). They define the FastAPI route groups (`tech-arch §4.1`), the LangGraph workflow states (`tech-arch §4.2`), the six agent boundaries (`tech-arch §4.3`), the data contracts (`design §5`), and the security, reliability, and configuration requirements. Neither file carries a frontmatter `status`; both are treated as current working specifications.
 * The frontend already defines the **browser-facing (BFF) contract** the backend must serve. It is net-new relative to the specs (which define only webhook/Teams/health routes) and was captured in the frontend plan as decision D4. The exact shapes are readable from [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts), [frontend/src/api/streamClient.ts](../../../frontend/src/api/streamClient.ts), and [frontend/src/types/wire.ts](../../../frontend/src/types/wire.ts). The backend scaffold must serve these same-origin and serve the built `frontend/dist` assets.
 * The user's request adds capabilities beyond the base specs: **MCP servers**, **Genie agents**, **AI research**, and **other AI functions**. On Databricks these map to managed MCP servers (Genie, Vector Search, Unity Catalog functions), the Genie Conversation API, a research/deep-reasoning agent over governed retrieval, and Databricks AI Functions (for example `ai_query`, `ai_classify`, `ai_extract`). How deep to wire these now is one of the open decisions.
 * The specifications place human approval in **Microsoft Teams Adaptive Cards** and require backend role re-checks (`design §8`, `tech-arch §8`): card visibility is not authorization. The scaffold models the approval boundary as a dedicated, audited LangGraph node and keeps external writes disabled by default.
-* "Scaffold" here means a buildable, runnable app skeleton with typed contracts, the orchestration graph, agent/adapter/connector/MCP interfaces, and local stub implementations plus unit tests — not finished features and not live external integrations.
+* "Scaffold" here means a buildable, runnable Release 1 scaffold with typed contracts, the orchestration graph, agent/adapter/connector/MCP interfaces, and local stub implementations plus unit tests — not finished features and not live external integrations.
 * This is a **Databricks App** served by the FastAPI backend ([app.yaml.example](../../../app.yaml.example)); the standing Databricks App invariants apply at deploy time (bind `DATABRICKS_APP_PORT`, reference resources via `valueFrom`, deploy via Asset Bundles when a `databricks.yml` exists, keep secrets out of code).
 
 ## Phase Checklist
@@ -144,7 +144,7 @@ Details:
 References:
 * [app.yaml.example](../../../app.yaml.example): the `uvicorn app.main:app` entrypoint and the Databricks App invariants the backend must honor.
 * [README.md](../../../README.md): the reference architecture topology (FastAPI host, LangGraph brain).
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§4.1` FastAPI boundary and `§11` technology decisions.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§4.1` FastAPI boundary and `§11` technology decisions.
 
 Dependencies:
 * None
@@ -166,8 +166,8 @@ Details:
 * Health endpoints belong to the Edge layer (`tech-arch §3`); keep readiness checks cheap and side-effect-free in the scaffold (the stub adapters report ready).
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§10` configuration categories, `§9` health-check separation, `§3` layer responsibilities.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§6` secret handling.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§10` configuration categories, `§9` health-check separation, `§3` layer responsibilities.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§6` secret handling.
 * [frontend/README.md](../../../frontend/README.md): the same-origin and `frontend/dist` build-output expectation.
 
 Dependencies:
@@ -227,7 +227,7 @@ Goals:
 * Pydantic models represent the `design §5` Incident event and Diagnosis result, and the browser (BFF) request/response shapes the frontend already consumes, so the backend and frontend share one contract.
 
 Requirements:
-* Satisfies FR-003, FR-004; NFR-003. Implements `design §5` (`docs/design-specification.md`) and the net-new BFF contract (D5).
+* Satisfies FR-003, FR-004; NFR-003. Implements `design §5` (`docs/scalaton-design-specification.md`) and the net-new BFF contract (D5).
 * Model the `design §5` contracts exactly. These are system contracts:
 
   ```json
@@ -262,7 +262,7 @@ Details:
 * The operation handle/status types support the `tech-arch §4.1` async pattern (submit returns a handle; a poll returns status); include them so P06 can expose the async acknowledge-and-process flow.
 
 References:
-* [docs/design-specification.md](../../../docs/design-specification.md): `§5` data contracts (authoritative), `§4.4.3` CR contents, `§8` approval-control fields.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§5` data contracts (authoritative), `§4.4.3` CR contents, `§8` approval-control fields.
 * [frontend/src/types/wire.ts](../../../frontend/src/types/wire.ts): the BFF shapes and narrowing guards to mirror.
 * [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts): the endpoint-to-shape mapping (`JiraSubmitResult`, `ApprovalResult`).
 
@@ -286,8 +286,8 @@ Details:
 * The recommended workflow states (`received`, `validating`, `collecting_evidence`, `diagnosing`, `drafting`, `awaiting_human_review`, `executing_approved_action`, `completed`, `failed`) form an internal `WorkflowState` enum that P05 drives. This is distinct from the BFF `IncidentStatus` (the five values in [frontend/src/types/wire.ts](../../../frontend/src/types/wire.ts): `awaiting_human_review`, `resolved_with_recommendation`, `executing_approved_action`, `completed`, `failed`). Define both and an explicit `WorkflowState -> IncidentStatus` mapping (for example internal `diagnosing`/`drafting`/`collecting_evidence` map to the console's `awaiting_human_review`, and a completed-with-recommendation outcome maps to `resolved_with_recommendation`); do not share one enum across the boundary (PC-004).
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§4.2` workflow-state fields and recommended states, `§4.3` typed-internal-model boundary.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§5` schema-validation-before-external-send rule.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§4.2` workflow-state fields and recommended states, `§4.3` typed-internal-model boundary.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§5` schema-validation-before-external-send rule.
 
 Dependencies:
 * P02-T01
@@ -358,8 +358,8 @@ Details:
 * Treat retrieved runbook/ticket/log text as untrusted input to the model, not instruction (`tech-arch §8` prompt-injection defense); the adapter returns data, and sanitization/redaction is applied before model calls (P04-T02).
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§4.3` agent/adapter boundaries, `§5` data domains and retrieval metadata, `§8` untrusted-input rule, `§11` technology decisions.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§3` AI-layer responsibilities, `§6` read-only-by-default governance.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§4.3` agent/adapter boundaries, `§5` data domains and retrieval metadata, `§8` untrusted-input rule, `§11` technology decisions.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§3` AI-layer responsibilities, `§6` read-only-by-default governance.
 
 Dependencies:
 * P02-T02
@@ -382,7 +382,7 @@ Details:
 * Keep the Genie surface thin: the co-pilot chat (P06) and the Research agent (P05) call it through this layer rather than embedding Genie calls directly, so there is one Genie integration point. Retain generated-SQL and source references in the internal result for audit; surfacing them in the console is a future frontend-contract change because the current SSE contract carries only text/error/truncated/done frames (PC-007).
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§4.3` knowledge/diagnosis agents, `§8` untrusted-input and least-privilege, `§10` configuration-by-reference, `§11` Vector Search over governed Delta.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§4.3` knowledge/diagnosis agents, `§8` untrusted-input and least-privilege, `§10` configuration-by-reference, `§11` Vector Search over governed Delta.
 * [app.yaml.example](../../../app.yaml.example): the named-resource/`valueFrom` invariant for Genie spaces, warehouses, and secrets.
 
 Dependencies:
@@ -453,8 +453,8 @@ Details:
 * Idempotency keys derive from the source event, target system, target record, and action type (`tech-arch §6`); implement that derivation in P04-T02 and consume it here.
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§6` adapter contract and idempotency, `§11` integration protocols.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§4.2`-`§4.4` connector workflows, `§4.2.4` excluded destructive actions.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§6` adapter contract and idempotency, `§11` integration protocols.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§4.2`-`§4.4` connector workflows, `§4.2.4` excluded destructive actions.
 
 Dependencies:
 * P02-T02
@@ -478,8 +478,8 @@ Details:
 * Redaction runs on the sanitized event context stored in the workflow state (P02-T02) so downstream agents and model calls only ever see minimized data (NFR-002).
 
 References:
-* [docs/design-specification.md](../../../docs/design-specification.md): `§6` webhook auth and redaction, `§8` approval controls and role checks.
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§6` webhook security and idempotency, `§8` Teams role re-check.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§6` webhook auth and redaction, `§8` approval controls and role checks.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§6` webhook security and idempotency, `§8` Teams role re-check.
 
 Dependencies:
 * P02-T02
@@ -503,8 +503,8 @@ Details:
 * Keep metrics/traces as thin hooks in the scaffold (counters and span context) rather than wiring a full telemetry backend; name the metrics the specs call out (latency, workflow duration, model latency, token usage, retry count, connector failures) so the live wiring is mechanical.
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§5` audit-record fields and governed Delta storage, `§9` telemetry and retry/dead-letter.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§6` audit storage, `§7` reliability, `§8` approval auditing.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§5` audit-record fields and governed Delta storage, `§9` telemetry and retry/dead-letter.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§6` audit storage, `§7` reliability, `§8` approval auditing.
 
 Dependencies:
 * P02-T02
@@ -574,8 +574,8 @@ Details:
 * The approval boundary is the defining safety property (`design §8`, `§2` non-goals): analysis and drafting are automated, production-impacting actions are not. Make the pause explicit rather than a flag an agent could bypass.
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§4.2` states, transitions, and dedicated external-write nodes.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§4.1.7` no-silent-close, `§8` human-in-the-loop boundary, `§2` non-goals.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§4.2` states, transitions, and dedicated external-write nodes.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§4.1.7` no-silent-close, `§8` human-in-the-loop boundary, `§2` non-goals.
 
 Dependencies:
 * P02-T02, P04-T01, P04-T03
@@ -597,8 +597,8 @@ Details:
 * Enforce the read-only boundary for Log/Knowledge/Research agents at the adapter interface (P03), not merely by convention, so a future live implementation cannot silently gain write access.
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§4.3` agent boundaries and typed-model rule.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§4.1` triage evidence/diagnosis steps, `§4.3`-`§4.4` escalation and change drafting.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§4.3` agent boundaries and typed-model rule.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§4.1` triage evidence/diagnosis steps, `§4.3`-`§4.4` escalation and change drafting.
 
 Dependencies:
 * P05-T01, P03-T02, P04-T01
@@ -669,8 +669,8 @@ Details:
 * The operation submit/poll endpoints from P02-T01 expose the async handle/status for any long operation a caller initiates, consistent with the `tech-arch §4.1` acknowledge-and-process pattern.
 
 References:
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§4.1` route groups and async handling, `§6` webhook security/idempotency, `§8` Teams role re-check.
-* [docs/design-specification.md](../../../docs/design-specification.md): `§4.1` triage sequence, `§8` approval boundary.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§4.1` route groups and async handling, `§6` webhook security/idempotency, `§8` Teams role re-check.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§4.1` triage sequence, `§8` approval boundary.
 
 Dependencies:
 * P05-T01, P04-T02, P04-T03
@@ -695,7 +695,7 @@ Details:
 References:
 * [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts): the endpoint set and request/response shapes to match.
 * [frontend/src/api/streamClient.ts](../../../frontend/src/api/streamClient.ts): the SSE frame contract (`parseDataPayload`, terminal sentinels).
-* [docs/design-specification.md](../../../docs/design-specification.md): `§8` approval controls and auditing.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§8` approval controls and auditing.
 
 Dependencies:
 * P06-T01, P05-T02, P04-T01, P04-T03
@@ -767,8 +767,8 @@ Details:
 * Acceptance for the scaffold is a clean build and a passing `pytest` run, plus the end-to-end stub path producing a correlation-ID-traceable workflow with no pre-approval external write (`design §9` acceptance).
 
 References:
-* [docs/design-specification.md](../../../docs/design-specification.md): `§9` testing and acceptance criteria.
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§9` reliability behaviors to assert (retry, idempotency, dead-letter).
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§9` testing and acceptance criteria.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§9` reliability behaviors to assert (retry, idempotency, dead-letter).
 
 Dependencies:
 * P04-T01, P04-T02, P04-T03, P05-T01, P05-T02, P06-T02
@@ -812,7 +812,7 @@ Dependencies:
 * Authoritative design sources are the `docs/` specifications; the frontend's `/api/*` transport contract is the browser surface the backend serves.
 * D1 resolved: the FastAPI package lives at a top-level **`backend/`** directory containing the `app/` package (so `app.main:app` is importable with `backend/` as the working directory), symmetric with [frontend/](../../../frontend).
 * D2 resolved: use **`uv` + `pyproject.toml`** for dependency management, with a generated `requirements.txt` for the Databricks App runtime.
-* D3 resolved: build a **structured skeleton** — typed contracts, a fully wired LangGraph graph, and local stub implementations behind interfaces — so the backend and frontend run together locally with no live external dependencies.
+* D3 resolved: build a **structured Release 1 scaffold** — typed contracts, a fully wired LangGraph graph, and local stub implementations behind interfaces — so the backend and frontend run together locally with no live external dependencies.
 * D4 resolved: use **Databricks-managed MCP servers** (Genie, Vector Search, Unity Catalog functions) as the primary agent tool surface, plus a config-driven external-MCP registry and a SQL-warehouse Databricks AI-Functions adapter.
 * D6 resolved (PC-001): **Microsoft Teams is the authoritative approval surface** (`design §8`). The web console is a proposal/review surface and is not an authorization authority; its mutating routes return `blocked` by default (external writes off), and enabling browser writes later requires the full control set — Databricks App on-behalf-of (OBO) user-identity extraction, a backend policy check, draft payload-hash/version binding, action-ID idempotency, and approval auditing.
 
@@ -822,10 +822,10 @@ Dependencies:
 |-------|---------------------------|--------|-------|---------------------------|----------|-----------------|
 | D1 | Backend placement: top-level `backend/` directory containing the `app/` package | confirmed | user | Symmetric with `frontend/`; `app.yaml.example` runs `uvicorn app.main:app` with `backend/` as the working directory | [app.yaml.example](../../../app.yaml.example); [frontend/](../../../frontend) | Resolved: all backend paths in P01-P07 derive from `backend/` |
 | D2 | Packaging: `uv` + `pyproject.toml` (+ generated `requirements.txt`) | confirmed | user | Honors the standing uv-projects instruction; a generated `requirements.txt` satisfies the Databricks App runtime | standing uv-projects instruction; Databricks Apps runtime | Resolved: P01 foundation uses `uv`/`pyproject.toml` |
-| D3 | Scaffold depth: structured skeleton with typed contracts, a wired LangGraph graph, and local stubs behind interfaces | confirmed | user | Keeps the app runnable and testable with no live dependencies; mirrors the frontend's mock-first decision | [docs/technology-architecture.md](../../../docs/technology-architecture.md); frontend mock parity (frontend D3) | Resolved: all phases scaffold stubs behind interfaces; external writes off by default |
-| D4 | Integration: Databricks-managed MCP servers (Genie, Vector Search, UC functions) + external-MCP registry + SQL AI-Functions adapter | confirmed | user | The user asked to connect MCP servers; Databricks provides managed MCP servers for exactly these surfaces | [docs/technology-architecture.md](../../../docs/technology-architecture.md) `§4.3`,`§11`; user request | Resolved: P03 builds the managed-MCP tool surface and Genie/AI-function adapters; P05 agents consume MCP tools |
-| D5 | Browser (BFF) contract is net-new relative to the specs | open (non-blocking) | user / backend-owner | Carried from the frontend plan's D4: the specs define only webhook/Teams/health routes; the backend implements the contract the frontend already targets. Confirm with the backend owner before freezing | [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts); [docs/technology-architecture.md](../../../docs/technology-architecture.md) `§4.1` | Shapes P02 wire schemas and P06 routes; does not block the stub-backed scaffold |
-| D6 | Approval authority for browser-triggered external writes (PC-001) | confirmed | user | Teams is authoritative (`design §8`); the browser console is a proposal/review surface whose mutating routes return `blocked` by default and is not an authorization authority. Enabling browser writes later requires OBO identity, a backend policy check, payload-hash/version binding, action-ID idempotency, and approval auditing | [docs/design-specification.md](../../../docs/design-specification.md) `§6`,`§8`; [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts) | Resolved: P06-T02 routes return `blocked` by default; the enabling control set is a guard; P07-T01 asserts no pre-approval browser write |
+| D3 | Scaffold depth: structured Release 1 scaffold with typed contracts, a wired LangGraph graph, and local stubs behind interfaces | confirmed | user | Keeps the app runnable and testable with no live dependencies; mirrors the frontend's mock-first decision | [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md); frontend mock parity (frontend D3) | Resolved: all phases scaffold stubs behind interfaces; external writes off by default |
+| D4 | Integration: Databricks-managed MCP servers (Genie, Vector Search, UC functions) + external-MCP registry + SQL AI-Functions adapter | confirmed | user | The user asked to connect MCP servers; Databricks provides managed MCP servers for exactly these surfaces | [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md) `§4.3`,`§11`; user request | Resolved: P03 builds the managed-MCP tool surface and Genie/AI-function adapters; P05 agents consume MCP tools |
+| D5 | Browser (BFF) contract is net-new relative to the specs | open (non-blocking) | user / backend-owner | Carried from the frontend plan's D4: the specs define only webhook/Teams/health routes; the backend implements the contract the frontend already targets. Confirm with the backend owner before freezing | [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts); [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md) `§4.1` | Shapes P02 wire schemas and P06 routes; does not block the stub-backed scaffold |
+| D6 | Approval authority for browser-triggered external writes (PC-001) | confirmed | user | Teams is authoritative (`design §8`); the browser console is a proposal/review surface whose mutating routes return `blocked` by default and is not an authorization authority. Enabling browser writes later requires OBO identity, a backend policy check, payload-hash/version binding, action-ID idempotency, and approval auditing | [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) `§6`,`§8`; [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts) | Resolved: P06-T02 routes return `blocked` by default; the enabling control set is a guard; P07-T01 asserts no pre-approval browser write |
 
 ## Planning Readiness and Next Step
 
@@ -898,7 +898,7 @@ Non-goals (final depth confirmed by D3):
 
 * Python and FastAPI runtime; LangGraph for orchestration (`tech-arch §11`).
 * The Databricks CLI and Asset Bundles for eventual deployment (deploy stage, not planning).
-* Specification-defined data contracts (authoritative, [docs/design-specification.md](../../../docs/design-specification.md) `§5`): Incident event and Diagnosis result. These are system contracts, modeled verbatim in P02-T01:
+* Specification-defined data contracts (authoritative, [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) `§5`): Incident event and Diagnosis result. These are system contracts, modeled verbatim in P02-T01:
 
 ```json
 // design-specification.md §5 — Incident event (inbound)
@@ -932,8 +932,8 @@ POST /api/copilot/stream                    -> text/event-stream (SSE: {text,id|
 
 * No formal BRD, PRD, or ADR exists. Search: scanned the repository for `.adr-config.yml` and Markdown frontmatter carrying `brd_id`/`prd_id` using the task's terms (FastAPI, LangGraph, backend, MCP, Genie, AI functions); the only match is this session's frontend tracking plan, which is not a business source. Result: `no relevant business sources found`.
 * Authoritative design sources (no `status` frontmatter; treated as current):
-  * [docs/design-specification.md](../../../docs/design-specification.md) — goals/non-goals, architecture, core workflows (`§4.1`-`§4.4`), data contracts (`§5`), security (`§6`), reliability (`§7`), human-in-the-loop (`§8`), testing/acceptance (`§9`), open decisions (`§10`).
-  * [docs/technology-architecture.md](../../../docs/technology-architecture.md) — principles, logical/runtime architecture, FastAPI route groups (`§4.1`), LangGraph states (`§4.2`), agent boundaries (`§4.3`), data/storage (`§5`), integration/idempotency (`§6`), deployment topology (`§7`), security (`§8`), reliability/observability (`§9`), configuration (`§10`), technology decisions (`§11`).
+  * [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) — goals/non-goals, architecture, core workflows (`§4.1`-`§4.4`), data contracts (`§5`), security (`§6`), reliability (`§7`), human-in-the-loop (`§8`), testing/acceptance (`§9`), open decisions (`§10`).
+  * [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md) — principles, logical/runtime architecture, FastAPI route groups (`§4.1`), LangGraph states (`§4.2`), agent boundaries (`§4.3`), data/storage (`§5`), integration/idempotency (`§6`), deployment topology (`§7`), security (`§8`), reliability/observability (`§9`), configuration (`§10`), technology decisions (`§11`).
 * Frontend BFF contract and conventions: [frontend/src/api/apiClient.ts](../../../frontend/src/api/apiClient.ts), [frontend/src/api/streamClient.ts](../../../frontend/src/api/streamClient.ts), [frontend/src/types/wire.ts](../../../frontend/src/types/wire.ts), [frontend/README.md](../../../frontend/README.md).
 * Prior planning: [.copilot-tracking/plans/2026-11-04/scaffold-frontend-plan.md](../../plans/2026-11-04/scaffold-frontend-plan.md) — the frontend scaffold and its Follow-Up Items that this plan continues.
 * Databricks App manifest scaffold: [app.yaml.example](../../../app.yaml.example).
@@ -941,7 +941,7 @@ POST /api/copilot/stream                    -> text/event-stream (SSE: {text,id|
 ## Critique Disposition
 
 * Critique setting: `standard` (default); provenance: no explicit user direction for `deep` or `skip` at planning start.
-* Critique status: `complete`. Verdict: **Revise** (1 blocking, 5 major, 1 minor). All findings disposed below. Critique artifact: [.copilot-tracking/reviews/plans/2026-11-05/scaffold-backend-plan-critique.md](../../reviews/plans/2026-11-05/scaffold-backend-plan-critique.md). The critique ran in an independent `rubber-duck` subagent (read-only); the artifact was persisted by the planning parent and its claims were verified against the actual files before acting.
+* Critique status: `complete`. Verdict: **Revise** (1 blocking, 5 major, 1 minor). All findings disposed below. Critique artifact: [.copilot-tracking/reviews/plans/2026-11-05/scalaton-backend-scaffold-plan-critique.md](../../reviews/plans/2026-11-05/scalaton-backend-scaffold-plan-critique.md). The critique ran in an independent `rubber-duck` subagent (read-only); the artifact was persisted by the planning parent and its claims were verified against the actual files before acting.
 
 | Finding | Severity | Disposition | Owner | Resolving evidence |
 |---------|----------|-------------|-------|--------------------|

@@ -1,14 +1,18 @@
-# ADR-001: Governed human-in-the-loop architecture for Scalaton
+# ADR-SCALATON-001: Governed human-in-the-loop architecture
 
-**Status:** Accepted for scaffold and pilot design  
-**Date:** 2026-11-05  
-**Owners:** Architecture and Engineering  
+**Status:** Accepted for scaffold and pilot design
+**Version:** 1.1
+**Date:** 2026-11-05
+**Owners:** Architecture and Engineering
+**Product:** Scalaton AI Operations Support Co-pilot
+**Business source:** BRD-SCALATON-001
+**Product source:** PRD-SCALATON-001
 
 ## Context
 
-Scalaton must analyze operational incidents and prepare actions across Databricks, ServiceNow, Jira, and Microsoft Teams. The system handles potentially sensitive data and may produce recommendations that affect production operations. AI output is probabilistic, external systems are asynchronous, and inbound events may be duplicated or replayed.
+Scalaton must analyze operational incidents and prepare actions across Databricks, ServiceNow, Jira, and Microsoft Teams. It handles sensitive data and may produce recommendations that affect production operations. AI output is probabilistic, external systems are asynchronous, and inbound events may be duplicated or replayed.
 
-The architecture therefore needs to support experimentation while ensuring that analysis and drafting cannot silently become an operational change.
+The architecture must support experimentation and local development while ensuring that analysis and drafting cannot silently become an operational change. The repository currently provides a buildable scaffold with typed interfaces and deterministic stubs; live integrations are a controlled follow-up.
 
 ## Decision
 
@@ -23,6 +27,20 @@ Adopt a governed, adapter-based architecture with the following decisions:
 7. Make Microsoft Teams the authoritative approval surface. The browser console is a read/proposal surface and cannot independently perform mutating actions.
 8. Disable external writes by default in development and test environments.
 9. Validate and redact all model-bound and externally transmitted data before use.
+
+## 3. Architecture traceability
+
+| Concern | Decision | PRD trace |
+|---|---|---|
+| Event intake | Authenticated, schema-validated webhooks | PR-001 |
+| Workflow control | LangGraph state machine with approval pause | PR-002, PR-009 |
+| AI inference | Mosaic AI through typed model adapter | PR-003, PR-004 |
+| Knowledge retrieval | Mosaic AI Vector Search over governed data | PR-003, PR-012 |
+| Governance | Unity Catalog, Databricks Secrets, least privilege | PR-012 |
+| External actions | Connector layer with authorization and idempotency | PR-007, PR-008, PR-009 |
+| Approval | Teams is authoritative; backend re-checks authorization | PR-006, PR-009 |
+| Reliability | Timeouts, retries, dead letters, and replay | PR-010 |
+| Observability | Correlation ID, metrics, traces, and immutable audit | PR-011 |
 
 ## Alternatives considered
 

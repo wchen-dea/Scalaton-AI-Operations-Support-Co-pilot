@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-file -->
-# RPI Plan: Scaffold the AI Ops Support System frontend
+# RPI Plan: Scaffold the Scalaton AI Operations Support Co-pilot frontend
 
 ## Task Metadata
 
@@ -9,14 +9,14 @@
 
 ## Executive Summary
 
-* Bottom line: Stand up a buildable, deployable single-page web frontend for the Agentic AI Operations Support System, structured after the `databricks-industry-solutions/dbxmetagen` dashboard (Vite + React + Tailwind, a single transport/cache module, `components`/`hooks`/`utils` layout, a committed build output, and a tabbed operational lifecycle), but adapted to this project's domain (Triage → War Room → Escalation → Change Request, plus a co-pilot chat) and this repository's own frontend conventions.
-* Why this matters: The repository's design intent is captured in [docs/design-specification.md](../../../docs/design-specification.md) and [docs/technology-architecture.md](../../../docs/technology-architecture.md), but there is no application code yet. A coherent frontend scaffold turns those specifications into a concrete, runnable surface the team can extend feature-by-feature and deploy as a native Databricks App without re-litigating structure, tooling, or the backend contract later.
+* Bottom line: Stand up a buildable, deployable single-page web frontend for the Scalaton AI Operations Support Co-pilot, structured after the `databricks-industry-solutions/dbxmetagen` dashboard (Vite + React + Tailwind, a single transport/cache module, `components`/`hooks`/`utils` layout, a committed build output, and a tabbed operational lifecycle), but adapted to this project's domain (Triage → War Room → Escalation → Change Request, plus a co-pilot chat) and this repository's own frontend conventions.
+* Why this matters: The repository's design intent is captured in [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) and [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md), but there is no application code yet. A coherent frontend scaffold turns those specifications into a concrete, runnable surface the team can extend feature-by-feature and deploy as a native Databricks App without re-litigating structure, tooling, or the backend contract later.
 * Planning result: Complete and revised after one `standard` independent critique. The three coupled decisions (language/stack, placement, backend scope) are resolved; the plan is re-grounded on the `docs/` specifications; one open question remains (the browser-facing API surface and the web-console-vs-Teams approval surface), recorded transparently and non-blocking for a mock-backed scaffold.
 * Confidence and uncertainty: High confidence in the reference design, the target domain IA, and the specification-derived contracts. The residual uncertainty is deliberate: the specs define webhook/Teams surfaces and event contracts (`§4`, `§5`) but no browser API, so the web console's endpoints are a net-new backend-for-frontend (BFF) proposal pending backend-owner confirmation.
 
 ### What You May Not Know
 
-* The authoritative design sources are [docs/design-specification.md](../../../docs/design-specification.md) and [docs/technology-architecture.md](../../../docs/technology-architecture.md). The earlier `AI_Ops_Support_System_Architecture` Word document and its converted Markdown are an early executive summary; where they differ, the `docs/` specifications win. This plan grounds its requirements and contracts in the `docs/` specs.
+* The authoritative design sources are [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) and [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md). The earlier `AI_Ops_Support_System_Architecture` Word document and its converted Markdown are an early executive summary; where they differ, the `docs/` specifications win. This plan grounds its requirements and contracts in the `docs/` specs.
 * The specs put the human-in-the-loop approvals in **Microsoft Teams Adaptive Cards** (`§4.2`, `§4.4`, `§8` of the design spec), not in a browser. The user explicitly asked to scaffold a web frontend modeled on the dbxmetagen React **dashboard**, so this web console is a **net-new, user-authorized operational surface** that mirrors/complements the Teams approval flow. The plan records this as an assumption rather than claiming the specs mandate a web approval UI, and it keeps Teams-side role re-checks authoritative (`design §8`: card visibility is not authorization).
 * The specs define a webhook- and Teams-action-oriented route surface (`tech-arch §4.1`: `/webhooks/*`, `/actions/teams`, `/health/*`) and event/result contracts (`design §5`: Incident event, Diagnosis result) — but **no browser/read API**. The frontend's read/stream endpoints are therefore a proposed BFF contract, labeled net-new and pending backend-owner confirmation; the scaffold runs on mock data (D3) so this does not block it.
 * The reference repo uses **JSX, not TSX** (React 19 + Vite 6 + Tailwind 3.4), with all backend calls funneled through a single `apiCache.js` and the built output committed for Databricks Asset Bundle sync. This project's standing instruction [react-typescript-streaming-frontend.instructions.md](../../../../.copilot/instructions/react-typescript-streaming-frontend.instructions.md) mandates **React + TypeScript** and says a repo's own instructions win — resolved as TypeScript in D1.
@@ -31,7 +31,7 @@
 %%{init: {"themeVariables": {"fontFamily": "Arial, Helvetica, sans-serif", "fontSize": "16px"}}}%%
 flowchart LR
     readme["README.md"]
-    specs["docs/design-specification.md + docs/technology-architecture.md"]
+    specs["docs/scalaton-design-specification.md + docs/scalaton-technology-architecture.md"]
     repo["Repository root (no app code)"]
     backend["FastAPI backend (specified, not built)"]
     repo --> readme
@@ -151,7 +151,7 @@ Details:
 
 References:
 * [.copilot/instructions/react-typescript-streaming-frontend.instructions.md](../../../../.copilot/instructions/react-typescript-streaming-frontend.instructions.md): environment-config and single-base-URL conventions.
-* [docs/technology-architecture.md](../../../docs/technology-architecture.md): `§10` environment-configuration categories and external-writes-off-by-default-in-dev.
+* [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md): `§10` environment-configuration categories and external-writes-off-by-default-in-dev.
 
 Dependencies:
 * P01-T01
@@ -231,7 +231,7 @@ Details:
 * The four lifecycle sections derive from the design spec's core workflows (`§4.1` Incident triage, `§4.2` Teams war room, `§4.3` Jira escalation, `§4.4` Change request drafting); the Co-pilot chat is the conversational surface over the LangGraph orchestrator (`tech-arch §4.2`). This IA adapts the reference's three-tab lifecycle to this domain. Note that `§4.2`/`§4.4` place operator actions in Teams Adaptive Cards; the in-app sections mirror those surfaces per the user-authorized web-console assumption (see D4).
 
 References:
-* [docs/design-specification.md](../../../docs/design-specification.md): `§4.1`-`§4.4` define the lifecycle sections and their operator actions.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§4.1`-`§4.4` define the lifecycle sections and their operator actions.
 
 Dependencies:
 * P02-T01
@@ -373,7 +373,7 @@ Details:
 * Design spec `§4.1` (Incident triage) and `§4.2` (Teams war room) define these surfaces; the war-room Adaptive-Card interactions map to in-app action affordances here, with Teams-side role re-checks remaining authoritative (`design §8`). Keep actions as placeholders — wiring real endpoints is feature work. The diagnosis shape is the `design §5` `Diagnosis result` contract.
 
 References:
-* [docs/design-specification.md](../../../docs/design-specification.md): `§4.1`-`§4.2` content and the `§5` `Diagnosis result` contract.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§4.1`-`§4.2` content and the `§5` `Diagnosis result` contract.
 
 Dependencies:
 * P02-T02, P03-T01
@@ -394,7 +394,7 @@ Details:
 * Design spec `§4.3` (Jira escalation) and `§4.4` (Change request drafting) define these surfaces; `§8` (human-in-the-loop) mandates the approval-control field set and that only an explicit approval may submit. The defining property is that AI outputs are proposals a human approves; the views must make the proposal/approval boundary obvious and surface the `§8` fields. Acceptance for the end-to-end approval path is governed by `design §9` (no external change without an auditable approval, traceable by correlation ID).
 
 References:
-* [docs/design-specification.md](../../../docs/design-specification.md): `§4.3`-`§4.4` content, `§8` approval-control fields, `§9` acceptance criteria.
+* [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md): `§4.3`-`§4.4` content, `§8` approval-control fields, `§9` acceptance criteria.
 
 Dependencies:
 * P02-T02, P03-T01
@@ -506,7 +506,7 @@ Dependencies:
 
 ### Confirmed User Direction
 
-* Scaffold the frontend for this project (Agentic AI Operations Support System on Databricks Apps).
+* Scaffold the frontend for this project (Scalaton AI Operations Support Co-pilot on Databricks Apps).
 * Use the frontend design of `databricks-industry-solutions/dbxmetagen` as the reference model (stack, layout, transport pattern, tabbed lifecycle, build/deploy approach).
 * Context source: this session's `/rpi-plan` invocation; decision-participation mode is `user-owned` (standalone, manual RPI).
 * D1 resolved: use **TypeScript (TSX)** + Vite + React + **Tailwind** — honor this repo's standing TypeScript instruction while keeping dbxmetagen's structure and visual design.
@@ -520,8 +520,8 @@ Dependencies:
 |-------|---------------------------|--------|-------|---------------------------|----------|-----------------|
 | D1 | Frontend language/stack: TypeScript (TSX) + Vite + React + Tailwind | confirmed | user | User selected TSX + Tailwind: honor this repo's standing TypeScript instruction while keeping dbxmetagen structure and visual parity | [react-typescript-streaming-frontend.instructions.md](../../../../.copilot/instructions/react-typescript-streaming-frontend.instructions.md); dbxmetagen `frontend-patterns.mdc` + `package.json` | Resolved: P01/P03/P04 use TypeScript and Tailwind |
 | D2 | Frontend app placement: top-level `frontend/` | confirmed | user | User selected a flat single-app layout | dbxmetagen tree; current repo has no app dirs | Resolved: app lives at `frontend/` and all paths derive from it |
-| D3 | Backend scope: frontend-only with documented contract + mock data + dev proxy | confirmed | user | User selected frontend-only; FastAPI backend deferred to Follow-Up | [docs/design-specification.md](../../../docs/design-specification.md); dbxmetagen `api-server-patterns.mdc` | Resolved: P03 uses mock data; no backend phase added |
-| D4 | Browser API (BFF) surface and web-console-vs-Teams approval surface: confirm the proposed `/api/*` endpoints and that an in-app approval console is wanted alongside Teams Adaptive Cards | open (non-blocking) | user / backend-owner | Specs define only webhook/Teams/health routes (`tech-arch §4.1`) and place approvals in Teams (`design §4.2/§4.4/§8`); the web console and its read/stream API are net-new. The user authorized the web frontend; the exact endpoints need backend-owner confirmation. Scaffold proceeds on mock data regardless | [docs/technology-architecture.md](../../../docs/technology-architecture.md) `§4.1`; [docs/design-specification.md](../../../docs/design-specification.md) `§4.2`,`§4.4`,`§8` | Shapes P03-T01 wire types and `## Dependencies` BFF contract; does not block the mock-backed scaffold |
+| D3 | Backend scope: frontend-only with documented contract + mock data + dev proxy | confirmed | user | User selected frontend-only; FastAPI backend deferred to Follow-Up | [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md); dbxmetagen `api-server-patterns.mdc` | Resolved: P03 uses mock data; no backend phase added |
+| D4 | Browser API (BFF) surface and web-console-vs-Teams approval surface: confirm the proposed `/api/*` endpoints and that an in-app approval console is wanted alongside Teams Adaptive Cards | open (non-blocking) | user / backend-owner | Specs define only webhook/Teams/health routes (`tech-arch §4.1`) and place approvals in Teams (`design §4.2/§4.4/§8`); the web console and its read/stream API are net-new. The user authorized the web frontend; the exact endpoints need backend-owner confirmation. Scaffold proceeds on mock data regardless | [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md) `§4.1`; [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) `§4.2`,`§4.4`,`§8` | Shapes P03-T01 wire types and `## Dependencies` BFF contract; does not block the mock-backed scaffold |
 
 ## Planning Readiness and Next Step
 
@@ -585,7 +585,7 @@ Non-goals:
 
 * Node.js and npm (or the toolchain the reference uses) for Vite/React builds.
 * A Databricks workspace with the Databricks CLI/Asset Bundles for eventual deployment (deploy stage, not planning).
-* Specification-defined contracts (authoritative, from [docs/design-specification.md](../../../docs/design-specification.md) `§5`). The frontend's domain types are derived from these; they are system contracts, not invented here:
+* Specification-defined contracts (authoritative, from [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) `§5`). The frontend's domain types are derived from these; they are system contracts, not invented here:
 
 ```json
 // design-specification.md §5 — Incident event (inbound)
@@ -631,8 +631,8 @@ POST /api/copilot/stream                    -> text/event-stream (SSE)          
 ## Sources
 
 * No formal BRD, PRD, or ADR (with `brd_id`/`prd_id` frontmatter or an `.adr-config.yml`) exists. Search: scanned the repository (`/Users/pchen/dbx-lab/xxx`) for `.adr-config.yml` and Markdown frontmatter carrying `brd_id`/`prd_id`; none found. However, two **authoritative design sources** exist under `docs/` and govern this plan:
-  * [docs/design-specification.md](../../../docs/design-specification.md) — purpose, goals/non-goals, high-level architecture, core workflows (`§4.1`-`§4.4`), data contracts (`§5`), security/governance (`§6`), reliability (`§7`), human-in-the-loop requirements (`§8`), testing/acceptance (`§9`), and open implementation decisions (`§10`).
-  * [docs/technology-architecture.md](../../../docs/technology-architecture.md) — architecture principles, logical/runtime architecture, FastAPI route groups (`§4.1`), LangGraph states (`§4.2`), agent boundaries (`§4.3`), data/storage (`§5`), integration/idempotency (`§6`), deployment topology (`§7`), security (`§8`), reliability/observability (`§9`), environment configuration (`§10`), and technology decisions (`§11`).
+  * [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) — purpose, goals/non-goals, high-level architecture, core workflows (`§4.1`-`§4.4`), data contracts (`§5`), security/governance (`§6`), reliability (`§7`), human-in-the-loop requirements (`§8`), testing/acceptance (`§9`), and open implementation decisions (`§10`).
+  * [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md) — architecture principles, logical/runtime architecture, FastAPI route groups (`§4.1`), LangGraph states (`§4.2`), agent boundaries (`§4.3`), data/storage (`§5`), integration/idempotency (`§6`), deployment topology (`§7`), security (`§8`), reliability/observability (`§9`), environment configuration (`§10`), and technology decisions (`§11`).
   * Neither file carries a `status` field; treat them as current working design specifications (recorded as a Low gap row in `## Risks and Open Questions`).
 * Superseded summary (do not cite as authoritative): the `AI_Ops_Support_System_Architecture` Word document and its converted Markdown are an earlier executive summary; where they differ from the `docs/` specs, the specs win.
 * Project README: [README.md](../../../README.md) — current project description.
@@ -647,11 +647,11 @@ POST /api/copilot/stream                    -> text/event-stream (SSE)          
 
 * Critique setting: `standard` (default); provenance: no explicit user direction for `deep` or `skip`.
 * Critique status: `complete`. Verdict: **Revise** (2 blocking, 4 major, 2 minor). All findings disposed below; the plan was revised directly. Critique artifact: [.copilot-tracking/reviews/plans/2026-11-04/scaffold-frontend-plan-critique.md](../../reviews/plans/2026-11-04/scaffold-frontend-plan-critique.md).
-* Independent verification: the critique's central claim — that `docs/design-specification.md` and `docs/technology-architecture.md` exist and were unused — was verified against the filesystem (both files present, added during this session after the initial survey) before acting.
+* Independent verification: the critique's central claim — that `docs/scalaton-design-specification.md` and `docs/scalaton-technology-architecture.md` exist and were unused — was verified against the filesystem (both files present, added during this session after the initial survey) before acting.
 
 | Finding | Severity | Disposition | Owner | Resolving evidence |
 |---------|----------|-------------|-------|--------------------|
-| PC-001 | blocking | Fixed | planner | References across Executive Summary, P02-T02, P04-T01/T02/T03, Sources, and the Before diagram re-pointed to [docs/design-specification.md](../../../docs/design-specification.md) and [docs/technology-architecture.md](../../../docs/technology-architecture.md); the "only README + .docx" claim corrected; the `.docx` recorded as a superseded summary. |
+| PC-001 | blocking | Fixed | planner | References across Executive Summary, P02-T02, P04-T01/T02/T03, Sources, and the Before diagram re-pointed to [docs/scalaton-design-specification.md](../../../docs/scalaton-design-specification.md) and [docs/scalaton-technology-architecture.md](../../../docs/scalaton-technology-architecture.md); the "only README + .docx" claim corrected; the `.docx` recorded as a superseded summary. |
 | PC-002 | blocking | Fixed (contract corrected) + open question routed to D4 | planner + user/backend-owner | `## Dependencies` now cites the `design §5` contracts as authoritative and labels the browser `/api/*` surface net-new/illustrative pending backend-owner confirmation; P03-T01 derives types from `§5`. The net-new surface is recorded as open decision D4 (non-blocking for a mock scaffold). |
 | PC-003 | major | Fixed | planner | P04-T02 now requires the `design §8` approval fields (proposed action, affected records, evidence, risk, rollback) and the `§4.4.3` draft contents, and cites `§9` acceptance; FR-008 updated. |
 | PC-004 | major | Fixed | planner | The web console is recorded as a user-authorized net-new surface in Executive Summary, Confirmed User Direction, D4, and Risks; Teams remains the spec's approval surface with backend role re-checks authoritative. |

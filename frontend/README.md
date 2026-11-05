@@ -1,7 +1,7 @@
-# AI Ops Support System — Frontend
+# Scalaton — Frontend
 
-A TypeScript + Vite + React single-page app for the Agentic AI Operations
-Support System, scaffolded after the
+A TypeScript + Vite + React single-page app for the Scalaton AI Operations Support
+Co-pilot, scaffolded after the
 [dbxmetagen](https://github.com/databricks-industry-solutions/dbxmetagen)
 dashboard and grounded in the specifications under [`../docs`](../docs).
 
@@ -57,7 +57,7 @@ co-pilot stream is split into a pure, tested reducer
 
 > The browser `/api/*` endpoints are a net-new backend-for-frontend contract
 > (plan decision D4), pending backend-owner confirmation. See
-> [`../docs/technology-architecture.md`](../docs/technology-architecture.md) §4.1.
+> [`../docs/scalaton-technology-architecture.md`](../docs/scalaton-technology-architecture.md) §4.1.
 
 ## Build output
 
@@ -66,8 +66,9 @@ committing it. Edit sources and rebuild — never hand-patch `dist/`.
 
 ## Deploy (Databricks App)
 
-This is a Databricks App served by the Python/FastAPI backend (out of scope for
-this scaffold — see plan decision D3). When the backend lands, finalize the app
+This is a Databricks App served by the Python/FastAPI backend. The current Release 1
+scaffold uses mocks and typed contracts; live integrations are a Release 2 concern.
+When deploying, finalize the app
 definition ([`../app.yaml.example`](../app.yaml.example)) with the
 `databricks-apps-python` and `databricks-app-design` skills: bind to
 `DATABRICKS_APP_PORT`, reference resources via `valueFrom`, and deploy through

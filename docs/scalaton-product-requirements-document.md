@@ -1,12 +1,15 @@
 # Scalaton — Product Requirements Document
 
-**Document ID:** PRD-Scalaton-001  
-**Status:** Draft for product and engineering review  
-**Version:** 1.0  
+**Document ID:** PRD-SCALATON-001
+**Status:** Draft for product and engineering review
+**Version:** 1.1
+**Product:** Scalaton AI Operations Support Co-pilot
+**Business source:** BRD-SCALATON-001
+**Architecture source:** ADR-SCALATON-001
 
 ## 1. Product definition
 
-Scalaton is a human-in-the-loop AI operations console and workflow service. It receives operational events, gathers governed evidence, generates structured recommendations, and prepares cross-platform drafts for review.
+Scalaton is a human-in-the-loop AI operations console and workflow service. It receives operational events, gathers governed evidence, generates structured recommendations, and prepares cross-platform drafts for review. The current repository is a deterministic scaffold; live external writes are disabled until the Release 2 readiness gate.
 
 ## 2. Personas and primary journeys
 
@@ -32,20 +35,20 @@ Scalaton is a human-in-the-loop AI operations console and workflow service. It r
 
 ## 3. Functional requirements
 
-| ID | Requirement | Acceptance criterion |
+| ID | Requirement | Acceptance criterion | BRD trace |
 |---|---|---|
-| PR-001 | Receive and validate source webhooks. | Invalid signatures, stale timestamps, replays, and malformed payloads are rejected and audited. |
-| PR-002 | Maintain incident workflow state. | A workflow progresses through receiving, validation, evidence collection, diagnosis, drafting, and human review without skipping approval gates. |
-| PR-003 | Generate structured diagnosis. | Output contains summary, probable causes with confidence/evidence, recommended actions, unknowns, references, and timestamp. |
-| PR-004 | Validate model output. | Invalid or incomplete output never reaches an external system. |
-| PR-005 | Provide operator console. | Users can view Triage, War Room, Escalations, Change Requests, and Co-pilot surfaces. |
-| PR-006 | Provide Teams approval cards. | Cards show proposal, affected records, evidence, risk, rollback, and current approval state. |
-| PR-007 | Support authorized Jira escalation. | A confirmed action creates one idempotent linked Jira issue or returns an auditable error. |
-| PR-008 | Draft ServiceNow change requests. | A draft includes code/change context, risk assessment, and validation evidence. |
-| PR-009 | Enforce human approval. | No production-impacting write, incident closure, or configured external record creation occurs without explicit authorization. |
-| PR-010 | Provide resilient processing. | Transient failures use bounded retries; permanent failures enter a reviewable dead-letter store. |
-| PR-011 | Provide observability. | Logs, metrics, and traces include correlation ID, workflow state, latency, retries, model usage, and connector outcomes. |
-| PR-012 | Protect sensitive information. | Secrets and unnecessary personal or credential data are redacted before model calls and logging. |
+| PR-001 | Receive and validate source webhooks. | Invalid signatures, stale timestamps, replays, and malformed payloads are rejected and audited. | BR-001 |
+| PR-002 | Maintain incident workflow state and correlation ID. | Each workflow follows the defined states and preserves one correlation ID across agents, connectors, and audit events. | BR-002 |
+| PR-003 | Generate structured diagnosis. | Output contains summary, probable causes with confidence/evidence, recommended actions, unknowns, references, and timestamp. | BR-003 |
+| PR-004 | Validate model output. | Invalid or incomplete output never reaches an external system. | BR-003, BR-004 |
+| PR-005 | Provide operator console. | Users can view Triage, War Room, Escalations, Change Requests, and Co-pilot surfaces; AI output is labeled as a draft. | BR-004 |
+| PR-006 | Provide Teams war-room and approval cards. | Cards show proposal, affected records, evidence, risk, rollback, and current approval state. | BR-003, BR-004, BR-006 |
+| PR-007 | Support authorized Jira escalation. | A confirmed action creates one idempotent linked Jira issue or returns an auditable error. | BR-005, BR-007 |
+| PR-008 | Draft and submit ServiceNow change requests. | A draft includes change context, risk, validation evidence, and rollback; submission requires Teams approval. | BR-005, BR-006, BR-008 |
+| PR-009 | Prevent unauthorized operational changes. | No production-impacting write, incident closure, or configured external record creation occurs without explicit authorization. | BR-005, BR-006 |
+| PR-010 | Provide resilient processing. | Transient failures use bounded retries; permanent failures enter a reviewable dead-letter store; replay is authorized and audited. | BR-010 |
+| PR-011 | Provide observability and auditability. | Logs, metrics, traces, and immutable audit events include correlation ID, state, latency, retries, model usage, approvals, and connector outcomes. | BR-002, BR-009 |
+| PR-012 | Protect sensitive information. | Secrets and unnecessary personal or credential data are redacted before model calls and logging. | BR-003, BR-009 |
 
 ## 4. Non-functional requirements
 
@@ -61,7 +64,9 @@ Scalaton is a human-in-the-loop AI operations console and workflow service. It r
 
 `received → validating → collecting_evidence → diagnosing → drafting → awaiting_human_review`
 
-Possible terminal or exception states include `resolved_with_recommendation`, `rejected`, `failed`, and `dead_lettered`. State transitions must be authorized, auditable, and idempotent.
+Terminal or exception states are `resolved_with_recommendation`, `rejected`, `failed`, and `dead_lettered`. State transitions must be authorized, auditable, and idempotent.
+
+The workflow pauses at `awaiting_human_review`. Scalaton must not submit a change request, change production state, close or materially change an incident, or create a policy-controlled external record without explicit Teams approval and backend authorization.
 
 ## 6. Data and AI requirements
 
@@ -81,11 +86,16 @@ Possible terminal or exception states include `resolved_with_recommendation`, `r
 - Validation, redaction, authorization, idempotency, audit, retry, and dead-letter controls.
 - External writes disabled by default.
 
+**Release 1 gate:** Unit, mocked integration, security, workflow, and approval-boundary tests pass.
+
 ### Release 2 — controlled integrations
 
 - Approved live adapters for Skybot, ServiceNow, Jira, Teams, Mosaic AI, Vector Search, and Unity Catalog.
 - Environment-specific service principals, secrets, endpoints, and approval policies.
 - Integration and security testing with representative sanitized data.
+- Approved field mappings, retention, on-call ownership, and rollback procedures.
+
+**Release 2 gate:** Product, security, platform, and system owners approve integration readiness. External writes remain disabled until this gate passes.
 
 ## 8. Acceptance and quality gates
 

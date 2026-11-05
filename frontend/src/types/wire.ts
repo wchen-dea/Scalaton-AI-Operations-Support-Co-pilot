@@ -1,7 +1,7 @@
 /**
  * Wire-contract types — the single module mirroring the backend response schema.
  *
- * Domain entity shapes are derived from docs/design-specification.md §5
+ * Domain entity shapes are derived from docs/scalaton-design-specification.md §5
  * (Incident event, Diagnosis result). The console-facing (BFF) shapes are
  * net-new and illustrative, pending backend-owner confirmation (plan decision D4).
  *

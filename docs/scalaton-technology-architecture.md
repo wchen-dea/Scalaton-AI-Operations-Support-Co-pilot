@@ -1,8 +1,12 @@
-# Technology Architecture Design
+# Scalaton — Technology Architecture Design
 
 ## 1. Scope
 
-This document describes the deployable technology architecture for the Agentic AI Operations Support System. It complements `design-specification.md` by defining runtime layers, component boundaries, data flows, deployment topology, and operational controls.
+This document describes the deployable technology architecture for the Scalaton AI Operations Support Co-pilot. It complements `design-specification.md` and the [ADR](scalaton-adr-001-governed-human-in-the-loop-architecture.md) by defining runtime layers, component boundaries, data flows, deployment topology, and operational controls.
+
+The business and product sources are the [BRD](scalaton-business-requirements-document.md) and [PRD](scalaton-product-requirements-document.md).
+
+This document is the engineering and deployment architecture for the AI SDLC. It implements the accepted ADR and provides the technical constraints consumed by the Release 1 scaffold and Release 2 integration-readiness gate. See the [AI SDLC documentation index](README.md).
 
 ## 2. Architecture principles
 
@@ -192,4 +196,4 @@ External writes should be disabled by default in development and test environmen
 - Mosaic AI Vector Search provides retrieval over governed Delta-backed knowledge.
 - Unity Catalog governs data permissions and audit storage.
 - REST, JWT, OAuth, and provider webhooks are used for external integrations.
-- Exact package versions, deployment descriptors, persistence implementation, and asynchronous execution mechanism remain implementation decisions until the application skeleton is introduced.
+- Exact package versions, deployment descriptors, persistence implementation, and asynchronous execution mechanism remain implementation decisions until the Release 2 production integration design is approved.

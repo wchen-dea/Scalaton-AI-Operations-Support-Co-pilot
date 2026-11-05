@@ -1,10 +1,10 @@
-# AI Ops Support System — Backend
+# Scalaton — Backend
 
-A Python + FastAPI + LangGraph backend scaffold for the Agentic AI Operations Support
-System. It serves the frontend's `/api/*` contract and the built `frontend/dist`, and
-encodes the design's incident workflow as a LangGraph multi-agent orchestration.
+A Python + FastAPI + LangGraph backend scaffold for the Scalaton AI Operations Support
+Co-pilot. It serves the frontend's `/api/*` contract and the built `frontend/dist`, and
+encodes the PRD incident workflow as a LangGraph multi-agent orchestration.
 
-It is a **scaffold**: every Databricks, MCP, Genie, and external-connector integration
+It is a **Release 1 scaffold**: every Databricks, MCP, Genie, and external-connector integration
 sits behind a typed interface with a local stub, so the app builds, runs, and tests with
 **no live external dependencies** (plan decision D3). Replacing a stub with a live
 implementation is a follow-up.
@@ -50,7 +50,10 @@ An incident flows `received → validating → collecting_evidence → diagnosin
 awaiting_human_review` and pauses. **No production-impacting external write happens
 before an explicit approval.** Microsoft Teams is the authoritative approval surface
 (`design §8`, plan decision D6); the browser console is a proposal/review surface, so its
-mutating `/api/*` routes return `blocked`. External writes are disabled by default.
+`mutating `/api/*` routes return `blocked`. External writes are disabled by default and
+remain disabled until the PRD Release 2 readiness gate.
+
+The governing requirements are documented in the [BRD](../docs/scalaton-business-requirements-document.md), [PRD](../docs/scalaton-product-requirements-document.md), and [ADR](../docs/scalaton-adr-001-governed-human-in-the-loop-architecture.md).
 
 ## Configuration
 

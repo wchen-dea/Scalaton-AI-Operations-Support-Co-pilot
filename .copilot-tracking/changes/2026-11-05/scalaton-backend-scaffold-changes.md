@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-file -->
-# RPI Changes: Scaffold the AI Ops Support System FastAPI + LangGraph backend
+# RPI Changes: Scaffold the Scalaton AI Operations Support Co-pilot FastAPI + LangGraph backend
 
 ## Metadata
 

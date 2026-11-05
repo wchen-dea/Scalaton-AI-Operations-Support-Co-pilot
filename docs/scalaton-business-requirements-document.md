@@ -1,13 +1,14 @@
 # Scalaton — Business Requirements Document
 
-**Document ID:** BRD-Scalaton-001  
-**Status:** Draft for stakeholder review  
-**Version:** 1.0  
-**Product:** Scalaton AI Operations Support Co-pilot  
+**Document ID:** BRD-SCALATON-001
+**Status:** Draft for stakeholder review
+**Version:** 1.1
+**Product:** Scalaton AI Operations Support Co-pilot
+**Related documents:** PRD-SCALATON-001; ADR-SCALATON-001
 
 ## 1. Executive summary
 
-Scalaton is an AI-enabled operations support co-pilot deployed as a native Databricks App. It helps operations and engineering teams investigate incidents, retrieve relevant runbooks and historical cases, coordinate response in Microsoft Teams, and prepare ServiceNow and Jira records.
+Scalaton is a human-in-the-loop AI operations support co-pilot deployed as a native Databricks App. It helps operations and engineering teams investigate incidents, retrieve governed runbooks and historical cases, coordinate response in Microsoft Teams, and prepare ServiceNow and Jira records.
 
 Scalaton automates analysis and drafting while preserving human control over operationally significant actions. It does not autonomously deploy code, change production state, close incidents, or submit change requests.
 
@@ -65,22 +66,22 @@ Targets must be baselined and approved before production launch.
 - Replacing ServiceNow, Jira, or Teams as systems of record.
 - Unrestricted transactional-data access.
 - Automatic incident closure or material incident changes without approval.
-- Fully live external integrations in the current scaffold.
+- Enabling live external integrations before the Release 2 readiness gate.
 
 ## 6. Business requirements
 
-| ID | Requirement | Priority |
+| ID | Requirement | Priority | Product trace |
 |---|---|---|
-| BR-001 | The system shall accept authenticated incidents from approved sources. | Must |
-| BR-002 | The system shall assign and propagate a unique correlation ID for each workflow. | Must |
-| BR-003 | The system shall provide evidence-based diagnostic drafts using approved enterprise data and knowledge. | Must |
-| BR-004 | The system shall clearly distinguish AI-generated drafts from approved actions. | Must |
-| BR-005 | The system shall require explicit authorization before external or production-impacting writes. | Must |
-| BR-006 | The system shall support Teams as the authoritative approval surface. | Must |
-| BR-007 | The system shall create linked Jira escalation records when authorized. | Should |
-| BR-008 | The system shall draft ServiceNow change requests after validated Jira remediation. | Should |
-| BR-009 | The system shall retain immutable audit evidence for decisions and actions. | Must |
-| BR-010 | The system shall fail safely through bounded retries, idempotency, and reviewable dead letters. | Must |
+| BR-001 | The system shall accept authenticated incidents from approved sources. | Must | PR-001 |
+| BR-002 | The system shall assign and propagate a unique correlation ID for each workflow. | Must | PR-002, PR-011 |
+| BR-003 | The system shall provide evidence-based diagnostic drafts using approved enterprise data and knowledge. | Must | PR-003, PR-006 |
+| BR-004 | The system shall clearly distinguish AI-generated drafts from approved actions. | Must | PR-005, PR-006 |
+| BR-005 | The system shall require explicit authorization before external or production-impacting writes. | Must | PR-007, PR-008 |
+| BR-006 | The system shall support Teams as the authoritative approval surface. | Must | PR-006, PR-008 |
+| BR-007 | The system shall create linked Jira escalation records when authorized. | Should | PR-007 |
+| BR-008 | The system shall draft ServiceNow change requests after validated Jira remediation. | Should | PR-008 |
+| BR-009 | The system shall retain immutable audit evidence for decisions and actions. | Must | PR-011 |
+| BR-010 | The system shall fail safely through bounded retries, idempotency, and reviewable dead letters. | Must | PR-010 |
 
 ## 7. Business risks and mitigations
 
@@ -105,4 +106,4 @@ Targets must be baselined and approved before production launch.
 
 ## 9. Approval criteria
 
-Stakeholders may approve the BRD when objectives, scope, risks, success measures, and compliance constraints are accepted. Approval authorizes product definition; it does not authorize production external writes.
+Stakeholders may approve this BRD when objectives, scope, risks, success measures, and compliance constraints are accepted. BRD approval authorizes product definition; it does not authorize production external writes.

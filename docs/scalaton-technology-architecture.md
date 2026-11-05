@@ -82,7 +82,7 @@ The workflow state should include:
 - approval state;
 - connector results and error information.
 
-Recommended states are `received`, `validating`, `collecting_evidence`, `diagnosing`, `drafting`, `awaiting_human_review`, `executing_approved_action`, `completed`, and `failed`.
+Recommended states are `received`, `validating`, `collecting_evidence`, `diagnosing`, `drafting`, `hot_fix`, `recording_operations`, `change_request_automation`, `awaiting_human_review`, `executing_approved_action`, `completed`, and `failed`.
 
 State transitions must be explicit. External writes belong in dedicated nodes so they can be authorized, retried, and audited independently from model inference.
 
@@ -94,6 +94,7 @@ State transitions must be explicit. External writes belong in dedicated nodes so
 - **Communication Agent:** creates ServiceNow notes and Teams cards from validated results.
 - **Escalation Agent:** maps approved context into Jira fields and preserves cross-system links.
 - **Change Agent:** drafts change requests and stops at the approval boundary.
+- **Operations Recording:** upserts raw/normalized events, workflow state, audit records, external actions, and approved semantic-memory updates.
 
 Agents communicate through typed internal models rather than free-form strings.
 

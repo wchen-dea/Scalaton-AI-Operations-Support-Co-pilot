@@ -42,36 +42,51 @@ The application must use a correlation ID for every incident workflow. The ID is
 
 ## 4. Core workflows
 
-### 4.1 Incident triage
+### 4.1 Phase 1 — Automated Triage
 
-1. ServiceNow sends a signed incident webhook containing the incident ID, severity, affected service, and source event.
-2. The application validates the request, creates a correlation ID, and records an audit event.
-3. The log agent retrieves permitted Spark and workflow diagnostics.
-4. The knowledge agent retrieves relevant runbooks and historical incidents from Vector Search.
-5. The orchestrator asks the model to produce a structured diagnosis:
+1. Skybot triggers the pipeline failure and ServiceNow creates the incident outside Scalaton.
+2. ServiceNow sends a signed incident webhook containing the incident ID, severity, affected service, and source event.
+3. The application validates the request, stores the raw payload in the bronze Delta layer, creates a correlation ID, and records an audit event.
+4. The log agent retrieves permitted Spark and workflow diagnostics.
+5. The knowledge agent retrieves relevant runbooks and historical incidents from Vector Search.
+6. The orchestrator asks the model to produce a structured diagnosis:
    - symptoms and timeline;
    - likely cause and confidence;
    - supporting evidence;
    - recommended next steps;
    - unknowns and required human checks.
-6. The application writes a concise, clearly labelled draft to ServiceNow work notes.
-7. The workflow status becomes `awaiting_human_review` or `resolved_with_recommendation`; it must not silently close an incident.
+7. The application writes a concise, clearly labelled draft to ServiceNow work notes.
+8. The workflow status becomes `awaiting_human_review` or `resolved_with_recommendation`; it must not silently close an incident.
 
-### 4.2 Teams war room
+### 4.2 Phase 2 — War Room Mobilization
 
 1. The application posts an Adaptive Card containing incident context, diagnosis, evidence, and confidence.
 2. Authorized operators can request permitted data-quality checks or acknowledge the diagnosis.
 3. Each action is authorized, idempotent, logged, and reflected in the card.
-4. Destructive or production-changing actions are excluded from the initial action set.
+4. The card highlights exact schema drift, runtime, or data issues and exposes only authorized actions.
 
-### 4.3 Jira escalation
+### 4.3 Phase 3 — Hot Fix
+
+1. The assigned operator uses Teams interactive buttons to request a data-quality check, retrieve runtime configuration, or rerun the affected job.
+2. Configuration updates and reruns require backend authorization, idempotency, audit, and the configured external-write policy.
+3. The browser console is a proposal surface; Teams remains the authoritative action surface.
+
+### 4.4 Phase 4 — Jira Escalation
 
 1. An authorized operator selects **Create Jira Bug**.
 2. The application displays or validates the mapped project, issue type, summary, description, severity, and incident link.
 3. The connector creates or reuses an issue using an idempotency key derived from the incident and action ID.
 4. The Jira key and URL are written back to ServiceNow and Teams.
 
-### 4.4 Change request drafting
+### 4.5 Phase 5 — Record Message and Operations
+
+1. Each phase upserts the normalized event and current workflow run.
+2. The application records audit events, external-action outcomes, dead letters, and redacted session messages.
+3. After the assigned operator confirms the solution or fix in Teams, the application updates the related ServiceNow incident work notes and Jira ticket comment/status context.
+4. ServiceNow and Jira updates use separate idempotency keys, are gated by the external-write policy, and are recorded in the external-action ledger and audit trail.
+5. Approved summaries and remediation outcomes are refreshed into the governed Vector Search index with source references.
+
+### 4.6 Phase 6 — Change Request Automation
 
 1. A Jira webhook reports that the remediation has passed QA.
 2. The application verifies the webhook and correlates it with the original incident.

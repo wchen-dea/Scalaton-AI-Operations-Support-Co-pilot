@@ -45,7 +45,24 @@ def teams_action(
             "reason": result.reason,
         }
 
-    if payload.action in {"run_data_quality_check", "acknowledge_diagnosis"}:
+    if payload.action == "confirm_solution_and_update_tickets":
+        result = service.confirm_solution_and_update_tickets(
+            payload.correlation_id, payload.approver
+        )
+        return {
+            "status": result.status,
+            "servicenow_id": result.servicenow_id,
+            "jira_key": result.jira_key,
+            "reason": result.reason,
+        }
+
+    if payload.action in {
+        "run_data_quality_check",
+        "get_runtime_configuration",
+        "rerun_pipeline",
+        "acknowledge_diagnosis",
+    }:
+        service.record_hot_fix_action(payload.correlation_id, payload.action, payload.approver)
         return {"status": "accepted", "action": payload.action}
 
     return {"status": "unsupported", "action": payload.action}

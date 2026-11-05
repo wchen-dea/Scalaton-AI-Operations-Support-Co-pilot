@@ -36,7 +36,11 @@ flowchart LR
 
 The canonical workflow is:
 
-`received → validating → collecting_evidence → diagnosing → drafting → awaiting_human_review`
+`Automated Triage → War Room Mobilization → Hot Fix → Jira Escalation → Record Message and Operations → Change Request Automation`
+
+The corresponding internal workflow states are:
+
+`received → validating → collecting_evidence → diagnosing → drafting → hot_fix → recording_operations → change_request_automation → awaiting_human_review`
 
 Terminal or exception states are `resolved_with_recommendation`, `rejected`, `failed`, and `dead_lettered`.
 

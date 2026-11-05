@@ -23,7 +23,7 @@ from .wire import (
 
 
 class WorkflowState(str, Enum):
-    """`tech-arch §4.2` recommended workflow states."""
+    """Canonical six-phase workflow states plus terminal states."""
 
     RECEIVED = "received"
     VALIDATING = "validating"
@@ -31,6 +31,9 @@ class WorkflowState(str, Enum):
     DIAGNOSING = "diagnosing"
     DRAFTING = "drafting"
     AWAITING_HUMAN_REVIEW = "awaiting_human_review"
+    HOT_FIX = "hot_fix"
+    RECORDING_OPERATIONS = "recording_operations"
+    CHANGE_REQUEST_AUTOMATION = "change_request_automation"
     EXECUTING_APPROVED_ACTION = "executing_approved_action"
     COMPLETED = "completed"
     FAILED = "failed"

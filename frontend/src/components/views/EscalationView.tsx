@@ -31,7 +31,7 @@ export function EscalationView({ correlationId }: { correlationId: string | null
   const [submitting, setSubmitting] = useState(false)
 
   if (!correlationId) {
-    return <EmptyState title="No incident selected" hint="Open an incident from Triage first." />
+    return <EmptyState title="No incident selected" hint="Open an incident from Automated Triage first." />
   }
   if (draft.status === 'loading') return <LoadingState label="Loading Jira draft…" />
   if (draft.status === 'error') return <ErrorState message={draft.error ?? ''} />

@@ -4,6 +4,8 @@ import { TriageView } from './components/views/TriageView'
 import { WarRoomView } from './components/views/WarRoomView'
 import { EscalationView } from './components/views/EscalationView'
 import { ChangeRequestView } from './components/views/ChangeRequestView'
+import { HotFixView } from './components/views/HotFixView'
+import { OperationsRecordView } from './components/views/OperationsRecordView'
 import { CopilotChatView } from './components/views/CopilotChatView'
 import { DEFAULT_SECTION, type SectionId } from './types/sections'
 
@@ -13,18 +15,22 @@ function App() {
 
   function openIncident(correlationId: string) {
     setSelectedIncident(correlationId)
-    setActive('war-room')
+    setActive('war-room-mobilization')
   }
 
   function renderSection() {
     switch (active) {
-      case 'triage':
+      case 'automated-triage':
         return <TriageView onOpenIncident={openIncident} />
-      case 'war-room':
+      case 'war-room-mobilization':
         return <WarRoomView correlationId={selectedIncident} />
-      case 'escalations':
+      case 'hot-fix':
+        return <HotFixView correlationId={selectedIncident} />
+      case 'jira-escalation':
         return <EscalationView correlationId={selectedIncident} />
-      case 'change-requests':
+      case 'record-operations':
+        return <OperationsRecordView correlationId={selectedIncident} />
+      case 'change-request-automation':
         return <ChangeRequestView correlationId={selectedIncident} />
       case 'copilot':
         return <CopilotChatView />

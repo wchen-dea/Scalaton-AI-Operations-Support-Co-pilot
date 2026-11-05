@@ -1,8 +1,7 @@
 # Databricks App manifest — Agentic AI Operations Support System.
 #
-# This app is served by the Python/FastAPI backend in `backend/`, which also serves the
-# built frontend assets from `frontend/dist`. Deploy from the repository root so both
-# `backend/` and `frontend/dist` are included.
+# This app installs and runs the wheel in `dist/`. The wheel contains the backend and
+# the built frontend assets; source directories are not required at runtime.
 #
 # Invariants honored here (databricks-apps):
 #  - The app binds the injected DATABRICKS_APP_PORT at runtime. `python -m app` reads it
@@ -14,15 +13,11 @@
 #    ad-hoc `databricks apps deploy`.
 
 command:
-  - "python"
-  - "-m"
-  - "app"
+  - "sh"
+  - "-c"
+  - "python -m pip install --disable-pip-version-check dist/ai_ops_support_backend-0.1.0-py3-none-any.whl && python -m app"
 
 env:
-  # Make the `app` package importable from the repo-root working directory.
-  - name: PYTHONPATH
-    value: "backend"
-
   # Non-secret configuration (tech-arch §10). Names only — never secrets.
   - name: ENABLE_EXTERNAL_WRITES
     # Stays false in every environment until the PRD §7 Release 2 gate (governed change).

@@ -23,7 +23,7 @@ export function WarRoomView({ correlationId }: WarRoomViewProps) {
   )
 
   if (!correlationId) {
-    return <EmptyState title="No incident selected" hint="Open an incident from Triage." />
+    return <EmptyState title="No incident selected" hint="Open an incident from Automated Triage." />
   }
   if (detail.status === 'loading') return <LoadingState label="Loading incident…" />
   if (detail.status === 'error') return <ErrorState message={detail.error ?? ''} />

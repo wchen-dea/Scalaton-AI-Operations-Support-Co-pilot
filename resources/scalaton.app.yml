@@ -5,7 +5,7 @@
 # resources the app references via `valueFrom` in app.yaml.
 #
 # Path resolution: this file is under resources/, so `..` reaches the bundle root,
-# which holds app.yaml, backend/, and the built frontend/dist.
+# which holds app.yaml and the generated wheel under dist/.
 
 resources:
   apps:

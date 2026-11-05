@@ -81,6 +81,13 @@ class ApprovalResult(BaseModel):
     reason: str | None = None
 
 
+class TicketUpdateResult(BaseModel):
+    status: Literal["updated", "blocked"]
+    servicenow_id: str | None = None
+    jira_key: str | None = None
+    reason: str | None = None
+
+
 class OperationHandle(BaseModel):
     task_id: str
 

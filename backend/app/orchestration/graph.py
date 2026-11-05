@@ -123,6 +123,51 @@ def build_graph(deps: Deps):
             "resolved_with_recommendation": True,
         }
 
+    def prepare_hot_fix(state: GraphState) -> dict:
+        """Expose safe operator actions; execution remains Teams-authorized."""
+
+        set_correlation_id(state["correlation_id"])
+        if _failed(state):
+            return {}
+        return {
+            "state": WorkflowState.HOT_FIX.value,
+            "lifecycle_phase": "hot_fix",
+            "hot_fix_results": {},
+        }
+
+    def record_operations(state: GraphState) -> dict:
+        """Mark the storage/vector-memory phase after workflow evidence is available."""
+
+        set_correlation_id(state["correlation_id"])
+        if _failed(state):
+            return {}
+        incident = IncidentEvent.model_validate(state["incident"])
+        deps.audit.record_event(
+            event_type="operations.recorded",
+            actor="orchestrator",
+            correlation_id=state["correlation_id"],
+            source_id=incident.event_id,
+            payload={"vector_refresh_requested": True},
+        )
+        return {
+            "state": WorkflowState.RECORDING_OPERATIONS.value,
+            "lifecycle_phase": "recording_operations",
+            "operations_recorded": True,
+            "vector_refresh_requested": True,
+        }
+
+    def prepare_change_request(state: GraphState) -> dict:
+        """Prepare the QA-backed change-request phase before approval."""
+
+        if _failed(state):
+            return {}
+        # Change Request Automation is a lifecycle phase, while the internal state
+        # remains at the approval boundary until Teams explicitly approves it.
+        return {
+            "state": WorkflowState.AWAITING_HUMAN_REVIEW.value,
+            "lifecycle_phase": "change_request_automation",
+        }
+
     def execute_approved_action(state: GraphState) -> dict:
         set_correlation_id(state["correlation_id"])
         if _failed(state):
@@ -167,13 +212,19 @@ def build_graph(deps: Deps):
     builder.add_node("collect_evidence", collect_evidence)
     builder.add_node("diagnose", diagnose)
     builder.add_node("draft", draft)
+    builder.add_node("prepare_hot_fix", prepare_hot_fix)
+    builder.add_node("record_operations", record_operations)
+    builder.add_node("prepare_change_request", prepare_change_request)
     builder.add_node(EXTERNAL_WRITE_NODE, execute_approved_action)
 
     builder.add_edge(START, "validate")
     builder.add_edge("validate", "collect_evidence")
     builder.add_edge("collect_evidence", "diagnose")
     builder.add_edge("diagnose", "draft")
-    builder.add_edge("draft", EXTERNAL_WRITE_NODE)
+    builder.add_edge("draft", "prepare_hot_fix")
+    builder.add_edge("prepare_hot_fix", "record_operations")
+    builder.add_edge("record_operations", "prepare_change_request")
+    builder.add_edge("prepare_change_request", EXTERNAL_WRITE_NODE)
     builder.add_edge(EXTERNAL_WRITE_NODE, END)
 
     return builder.compile(

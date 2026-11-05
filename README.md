@@ -21,7 +21,7 @@ npm install
 npm run dev     # runs in mock mode — no backend required
 ```
 
-The frontend presents the operational lifecycle (Triage → War Room → Escalation → Change Request) plus a streaming Co-pilot chat. Every AI output is a proposal awaiting explicit human approval; Microsoft Teams is the authoritative approval surface.
+The frontend presents the six-phase operational lifecycle — Automated Triage → War Room Mobilization → Hot Fix → Jira Escalation → Record Message and Operations → Change Request Automation — plus a streaming Co-pilot chat. Every AI output is a proposal awaiting explicit human approval; Microsoft Teams is the authoritative approval surface.
 
 ### Backend quick start
 
@@ -50,17 +50,25 @@ The architecture leverages a containerized FastAPI application running inside Da
 
 ### Phase 1: Automated Triage
 
-Skybot triggers a pipeline failure and instantiates a ServiceNow incident. ServiceNow automatically sends a webhook payload to the Databricks App. The app invokes its Log Agent to fetch Spark traces, queries the Vector Search database for historical matching runbooks, and adds structured diagnostic payloads directly into the ServiceNow work notes before human assignment.
+Skybot triggers a pipeline failure and instantiates a ServiceNow incident outside Scalaton. ServiceNow sends a webhook payload to the Databricks App. The app stores the payload in the raw Delta layer, invokes the Log Agent to fetch Spark traces, queries Vector Search for matching runbooks, and adds structured diagnostics to ServiceNow work notes before human assignment.
 
 ### Phase 2: War Room Mobilization
 
-The Databricks App pushes an interactive Adaptive Card into a dedicated Microsoft Teams channel shared by IT operators, data engineers, and BI analysts. The card highlights exact schema drift variations and gives operators interactive buttons to run on-demand data quality checks natively from within Teams.
+The Databricks App pushes an interactive Adaptive Card into a dedicated Microsoft Teams channel shared by IT operators, data engineers, and BI analysts. The card highlights schema drift, runtime issues, or data issues and provides authorized operator actions.
 
-### Phase 3: Jira Escalation
+### Phase 3: Hot Fix
+
+The assigned operator uses Teams buttons to run on-demand data-quality checks, retrieve runtime configuration, update configuration where authorized, and rerun the job. All actions are authenticated, audited, idempotent, and policy-controlled.
+
+### Phase 4: Jira Escalation
 
 When a Level 2/3 data engineer determines a permanent code fix is needed, they click **Create Jira Bug** inside Teams. The app automatically maps the contextual failure data into a linked Jira ticket, preventing any manual copy-pasting of error stacks.
 
-### Phase 4: Change Request Automation
+### Phase 5: Record Message and Operations
+
+For every phase, the backend upserts the normalized event, workflow state, audit record, external-action ledger, and redacted session context. Once an operator confirms the solution or fix in Teams, the app updates the related ServiceNow incident and Jira ticket with the confirmed outcome. These updates are gated, idempotent, audited, and approved summaries/remediation outcomes are eligible for the governed Vector Search index.
+
+### Phase 6: Change Request Automation
 
 Once the code passes automated pipeline tests and is flagged **Passed QA** in Jira, Jira webhooks notify the Databricks App. The system drafts a comprehensive ServiceNow Change Request (CR) containing the code diff, risk assessment, and validation logs, prompting the engineering lead in Teams with a simple **Approve and Submit** button.
 

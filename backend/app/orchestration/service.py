@@ -17,7 +17,13 @@ from ..observability.logging import get_logger, set_correlation_id
 from ..reliability.deadletter import DeadLetterEntry
 from ..schemas.events import DiagnosisResult, IncidentEvent
 from ..schemas.internal import ApprovalRecord, EvidenceBundle, WorkflowRecord, WorkflowState
-from ..schemas.wire import ApprovalResult, ChangeRequestDraft, JiraDraft, JiraSubmitResult
+from ..schemas.wire import (
+    ApprovalResult,
+    ChangeRequestDraft,
+    JiraDraft,
+    JiraSubmitResult,
+    TicketUpdateResult,
+)
 from ..security.idempotency import derive_idempotency_key
 from ..security.redaction import redact_text
 from ..storage import (
@@ -106,6 +112,7 @@ class WorkflowService:
             "correlation_id": cid,
             "incident": incident.model_dump(),
             "state": WorkflowState.RECEIVED.value,
+            "lifecycle_phase": "automated_triage",
             "approved": False,
             "connector_results": {},
             "evidence": {},
@@ -230,6 +237,100 @@ class WorkflowService:
             )
         )
         return JiraSubmitResult(status="created", jira_key=res.external_id, url=res.data.get("url"))
+
+    def record_hot_fix_action(self, correlation_id: str, action: str, actor: str) -> None:
+        """Record a Teams-authorized hot-fix operation without bypassing policy."""
+
+        record = self._records.get(correlation_id)
+        if record is None:
+            return
+        record.connector_results.setdefault("hot_fix_actions", []).append(
+            {"action": action, "actor": actor, "recorded_at": _utcnow()}
+        )
+        self.deps.audit.record_event(
+            event_type=f"hot_fix.{action}",
+            actor=actor,
+            correlation_id=correlation_id,
+            source_id=record.incident.event_id,
+            outcome="accepted",
+        )
+        self._persist_run(record)
+
+    def confirm_solution_and_update_tickets(
+        self, correlation_id: str, actor: str
+    ) -> TicketUpdateResult:
+        """Update ServiceNow and Jira after an operator confirms the fix.
+
+        The connector layer enforces the environment write gate and emits provider
+        audit events. Each update uses a distinct idempotency action so retries do not
+        duplicate ticket updates.
+        """
+
+        record = self._records.get(correlation_id)
+        if record is None:
+            return TicketUpdateResult(status="blocked", reason="Unknown incident")
+        if not self.settings.enable_external_writes:
+            return TicketUpdateResult(
+                status="blocked", reason="External writes are disabled in this environment."
+            )
+
+        diagnosis = record.diagnosis.summary if record.diagnosis else "Confirmed solution recorded."
+        note = f"[Confirmed solution by {actor}] {diagnosis}"
+        servicenow = self.deps.servicenow.write(
+            correlation_id=correlation_id,
+            source_event_id=record.incident.event_id,
+            target_record=record.incident.incident_id,
+            action_type="update_confirmed_solution",
+            work_notes=note,
+        )
+        jira_key = record.connector_results.get("jira_key")
+        jira = self.deps.jira.write(
+            correlation_id=correlation_id,
+            source_event_id=record.incident.event_id,
+            target_record=jira_key or record.incident.incident_id,
+            action_type="update_confirmed_solution",
+            comment=note,
+        )
+        if not servicenow.ok or not jira.ok:
+            return TicketUpdateResult(
+                status="blocked",
+                reason=servicenow.blocked_reason or jira.blocked_reason or "Ticket update failed",
+            )
+
+        for system, external_id in (("servicenow", servicenow.external_id), ("jira", jira.external_id)):
+            self.deps.repos.external_actions.record(
+                ExternalAction(
+                    idempotency_key=derive_idempotency_key(
+                        source_event_id=record.incident.event_id,
+                        target_system=system,
+                        target_record=record.incident.incident_id,
+                        action_type="update_confirmed_solution",
+                    ),
+                    correlation_id=correlation_id,
+                    target_system=system,
+                    action_type="update_confirmed_solution",
+                    request_hash=payload_hash({"note": note}),
+                    outcome="updated",
+                    external_record_id=external_id,
+                )
+            )
+        record.connector_results["confirmed_solution_recorded"] = True
+        record.connector_results["servicenow_ticket_update"] = servicenow.external_id
+        record.connector_results["jira_ticket_update"] = jira.external_id
+        self.deps.audit.record_event(
+            event_type="operations.confirmed_solution_tickets_updated",
+            actor=actor,
+            correlation_id=correlation_id,
+            source_id=record.incident.event_id,
+            outcome="updated",
+            payload={"servicenow_id": servicenow.external_id, "jira_key": jira.external_id},
+        )
+        self._persist_run(record)
+        return TicketUpdateResult(
+            status="updated",
+            servicenow_id=servicenow.external_id,
+            jira_key=jira.external_id,
+        )
 
     # --- BFF reads ---------------------------------------------------------
     def list_records(self) -> list[WorkflowRecord]:

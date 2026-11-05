@@ -26,7 +26,7 @@ export function TriageView({ onOpenIncident }: TriageViewProps) {
   if (incidents.status === 'loading') return <LoadingState label="Loading incidents…" />
   if (incidents.status === 'error') return <ErrorState message={incidents.error ?? ''} />
   if (!incidents.data || incidents.data.length === 0) {
-    return <EmptyState title="No incidents" hint="New incidents will appear here as they arrive." />
+    return <EmptyState title="No incidents" hint="ServiceNow webhook incidents will appear here after external creation." />
   }
 
   return (

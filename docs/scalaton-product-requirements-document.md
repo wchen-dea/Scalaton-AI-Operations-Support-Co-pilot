@@ -13,18 +13,39 @@ Scalaton is a human-in-the-loop AI operations console and workflow service. It r
 
 ## 2. Personas and primary journeys
 
-### Operations analyst — triage
+### Phase 1 — Automated Triage
 
-1. A signed ServiceNow, Skybot, or supported event is accepted.
-2. Scalaton displays incident severity, affected service, timeline, evidence, likely causes, confidence, unknowns, and recommended next steps.
-3. The analyst reviews the draft and may acknowledge or request an allowed check.
+1. Skybot and ServiceNow create the incident outside Scalaton.
+2. Scalaton accepts the signed ServiceNow webhook, stores the raw payload, retrieves Spark traces and matching runbooks, and writes structured diagnostics to ServiceNow work notes.
+3. The assigned operator reviews the draft before taking action.
 
-### Data/platform engineer — war room and escalation
+### Phase 2 — War Room Mobilization
 
-1. Scalaton posts an incident card to the authorized Teams channel.
-2. The engineer reviews evidence and performs permitted actions.
-3. If remediation requires engineering work, the engineer requests a linked Jira issue.
-4. The system shows the resulting Jira reference and audit trail.
+1. Scalaton posts an Adaptive Card to the authorized Teams channel.
+2. The card highlights schema drift, runtime, or data issues with supporting evidence.
+
+### Phase 3 — Hot Fix
+
+1. The assigned operator uses Teams buttons to run data-quality checks, retrieve runtime configuration, or rerun the job.
+2. Every action is authorized, idempotent, audited, and reflected in the workflow record.
+
+### Phase 4 — Jira Escalation
+
+1. A Level 2/3 data engineer selects **Create Jira Bug** in Teams.
+2. Scalaton maps the contextual failure data into one linked Jira ticket without manual copy-pasting.
+
+### Phase 5 — Record Message and Operations
+
+1. Scalaton upserts raw/normalized events, workflow state, audit records, external actions, and redacted session context.
+2. After the operator confirms the solution or fix in Teams, Scalaton updates the related ServiceNow incident and Jira ticket.
+3. Ticket updates are idempotent, audited, gated by the external-write policy, and include the confirmed outcome and supporting references.
+4. Approved summaries and remediation outcomes are eligible for Vector Search refresh.
+
+### Phase 6 — Change Request Automation
+
+1. Jira reports **Passed QA** through a webhook after automated pipeline tests pass.
+2. Scalaton drafts a ServiceNow Change Request containing code diff, risk assessment, validation logs, rollback, and linked records.
+3. An engineering lead reviews **Approve and Submit** in Teams.
 
 ### Engineering lead — change approval
 
@@ -49,6 +70,7 @@ Scalaton is a human-in-the-loop AI operations console and workflow service. It r
 | PR-010 | Provide resilient processing. | Transient failures use bounded retries; permanent failures enter a reviewable dead-letter store; replay is authorized and audited. | BR-010 |
 | PR-011 | Provide observability and auditability. | Logs, metrics, traces, and immutable audit events include correlation ID, state, latency, retries, model usage, approvals, and connector outcomes. | BR-002, BR-009 |
 | PR-012 | Protect sensitive information. | Secrets and unnecessary personal or credential data are redacted before model calls and logging. | BR-003, BR-009 |
+| PR-013 | Record confirmed solution operations across systems. | After Teams confirmation, the related ServiceNow incident and Jira ticket are updated once with an auditable, idempotent confirmed outcome. | BR-009, BR-010 |
 
 ## 4. Non-functional requirements
 

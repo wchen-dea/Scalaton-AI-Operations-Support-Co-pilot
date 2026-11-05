@@ -10,6 +10,9 @@ from __future__ import annotations
 # provider and the Teams identity-to-role mapping (`design §10`).
 _ACTION_POLICY: dict[str, set[str]] = {
     "run_data_quality_check": {"operator", "data_engineer", "bi_analyst"},
+    "confirm_solution_and_update_tickets": {"operator", "data_engineer"},
+    "get_runtime_configuration": {"operator", "data_engineer", "bi_analyst"},
+    "rerun_pipeline": {"operator", "data_engineer"},
     "create_jira_bug": {"data_engineer"},
     "acknowledge_diagnosis": {"operator", "data_engineer", "bi_analyst"},
     "approve_change_request": {"engineering_lead"},

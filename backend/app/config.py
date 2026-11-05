@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from functools import lru_cache
+from importlib.resources import files
 from pathlib import Path
 
 
@@ -36,8 +37,12 @@ def _float(name: str, default: float) -> float:
 
 
 def _default_frontend_dist() -> str:
-    # backend/app/config.py -> backend/ -> repo root -> frontend/dist
-    return str((Path(__file__).resolve().parents[2] / "frontend" / "dist"))
+    packaged_assets = Path(str(files("app") / "static"))
+    if packaged_assets.is_dir():
+        return str(packaged_assets)
+
+    # Local source checkout fallback: backend/app/config.py -> repository root.
+    return str(Path(__file__).resolve().parents[2] / "frontend" / "dist")
 
 
 @dataclass(frozen=True)

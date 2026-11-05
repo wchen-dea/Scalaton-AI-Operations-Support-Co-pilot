@@ -37,6 +37,14 @@ export interface ApprovalResult {
   reason?: string
 }
 
+export interface TeamsActionResult {
+  status: string
+  action?: string
+  servicenow_id?: string
+  jira_key?: string
+  reason?: string
+}
+
 // --- tiny TTL cache for reads ---
 
 interface CacheEntry {
@@ -147,4 +155,23 @@ export async function approveChangeRequest(correlationId: string): Promise<Appro
   if (!res.ok) throw new Error(`Approval failed (${res.status})`)
   invalidateCache()
   return (await res.json()) as ApprovalResult
+}
+
+export async function runTeamsAction(
+  correlationId: string,
+  action:
+    | 'run_data_quality_check'
+    | 'get_runtime_configuration'
+    | 'rerun_pipeline'
+    | 'confirm_solution_and_update_tickets',
+): Promise<TeamsActionResult> {
+  if (env.apiMode === 'mock') return delay({ status: 'accepted', action })
+  const res = await fetch(`${env.apiBaseUrl}/actions/teams`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, correlation_id: correlationId, roles: ['operator'] }),
+  })
+  if (!res.ok) throw new Error(`Teams action failed (${res.status})`)
+  invalidateCache()
+  return (await res.json()) as TeamsActionResult
 }

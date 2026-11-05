@@ -22,6 +22,10 @@ class GraphState(TypedDict, total=False):
     work_note: str | None
     jira_draft: dict | None
     change_request: dict | None
+    operations_recorded: bool
+    vector_refresh_requested: bool
+    hot_fix_results: dict
+    lifecycle_phase: str
     state: str
     approved: bool
     approval: dict | None

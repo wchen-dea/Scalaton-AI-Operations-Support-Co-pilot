@@ -18,7 +18,7 @@ export function AppShell({ active, onSelect, children }: AppShellProps) {
     <div className="flex min-h-full flex-col bg-surface text-slate-100">
       <header className="flex items-center justify-between px-6 py-4">
         <div>
-          <h1 className="text-lg font-semibold">AI Ops Support System</h1>
+          <h1 className="text-lg font-semibold">Scalaton AI Operations Support Co-pilot</h1>
           <p className="text-xs text-slate-400">
             Agentic operations co-pilot · human-in-the-loop approvals
           </p>

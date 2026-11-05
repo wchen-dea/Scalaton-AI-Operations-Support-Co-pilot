@@ -36,7 +36,7 @@ export function ChangeRequestView({ correlationId }: { correlationId: string | n
   const [submitting, setSubmitting] = useState(false)
 
   if (!correlationId) {
-    return <EmptyState title="No incident selected" hint="Open an incident from Triage first." />
+    return <EmptyState title="No incident selected" hint="Open an incident from Automated Triage first." />
   }
   if (draft.status === 'loading') return <LoadingState label="Loading change request…" />
   if (draft.status === 'error') return <ErrorState message={draft.error ?? ''} />

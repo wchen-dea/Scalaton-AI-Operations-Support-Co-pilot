@@ -1,0 +1,15 @@
+# Staging target values. Do not put credentials or secret values here.
+targets:
+  stg:
+    mode: production
+    workspace:
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      app_name: scalaton-stg
+      secret_scope: scalaton-stg
+      warehouse_id: ""
+      genie_space: ""
+      vector_search_index: ""
+      uc_catalog: ""
+      uc_schema: ""
+      enable_external_writes: "false"

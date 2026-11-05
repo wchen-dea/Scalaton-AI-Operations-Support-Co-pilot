@@ -1,0 +1,14 @@
+# Development target values. Do not put credentials or secret values here.
+targets:
+  dev:
+    default: true
+    mode: development
+    variables:
+      app_name: scalaton-dev
+      secret_scope: scalaton-dev
+      warehouse_id: "b20f70f71c2f52e2"
+      genie_space: "01f1b796045f1ff1b5f193a8e0694b41"
+      vector_search_index: "quickstart_catalog.multi_agent_schema.gmai_product_search_index"
+      uc_catalog: "quickstart_catalog"
+      uc_schema: "multi_agent_schema"
+      enable_external_writes: "false"

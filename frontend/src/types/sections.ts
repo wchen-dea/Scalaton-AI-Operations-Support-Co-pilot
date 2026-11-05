@@ -1,14 +1,13 @@
 /**
- * The operational lifecycle sections, derived from design-specification.md §4.1-§4.4
- * plus the Co-pilot chat (the conversational surface over the LangGraph orchestrator,
- * technology-architecture.md §4.2). This union is the single source of truth so the
- * navigation and the rendered views cannot drift.
+ * The six operational lifecycle phases plus the Co-pilot support surface.
  */
 export type SectionId =
-  | 'triage'
-  | 'war-room'
-  | 'escalations'
-  | 'change-requests'
+  | 'automated-triage'
+  | 'war-room-mobilization'
+  | 'hot-fix'
+  | 'jira-escalation'
+  | 'record-operations'
+  | 'change-request-automation'
   | 'copilot'
 
 export interface SectionDef {
@@ -19,24 +18,34 @@ export interface SectionDef {
 
 export const SECTIONS: readonly SectionDef[] = [
   {
-    id: 'triage',
-    label: 'Triage',
-    description: 'Incoming incidents with AI diagnostic summaries',
+    id: 'automated-triage',
+    label: '1. Automated Triage',
+    description: 'ServiceNow webhook, Spark traces, runbook retrieval, and work notes',
   },
   {
-    id: 'war-room',
-    label: 'War Room',
-    description: 'Incident detail, diagnosis, and permitted operator checks',
+    id: 'war-room-mobilization',
+    label: '2. War Room',
+    description: 'Teams Adaptive Card with root-cause analysis and evidence',
   },
   {
-    id: 'escalations',
-    label: 'Escalations',
-    description: 'Proposed Jira issues mapped from incident context',
+    id: 'hot-fix',
+    label: '3. Hot Fix',
+    description: 'Teams-authorized data-quality checks and runtime operations',
   },
   {
-    id: 'change-requests',
-    label: 'Change Requests',
-    description: 'Drafted change requests awaiting explicit approval',
+    id: 'jira-escalation',
+    label: '4. Jira Escalation',
+    description: 'Create a linked Jira bug from contextual incident evidence',
+  },
+  {
+    id: 'record-operations',
+    label: '5. Record Operations',
+    description: 'Upsert event and workflow records and refresh semantic memory',
+  },
+  {
+    id: 'change-request-automation',
+    label: '6. Change Request',
+    description: 'Draft and submit a QA-backed ServiceNow change request',
   },
   {
     id: 'copilot',
@@ -45,4 +54,4 @@ export const SECTIONS: readonly SectionDef[] = [
   },
 ] as const
 
-export const DEFAULT_SECTION: SectionId = 'triage'
+export const DEFAULT_SECTION: SectionId = 'automated-triage'

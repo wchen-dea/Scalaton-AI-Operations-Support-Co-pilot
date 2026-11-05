@@ -7,8 +7,9 @@ By automating log analysis, runbook indexing, and cross-platform document drafti
 ## Repository layout
 
 - [`frontend/`](frontend) — the operator console: a TypeScript + Vite + React single-page app (see [frontend/README.md](frontend/README.md)). Modeled on the [dbxmetagen](https://github.com/databricks-industry-solutions/dbxmetagen) dashboard and grounded in [`docs/`](docs).
+- [`backend/`](backend) — the Python + FastAPI + LangGraph backend scaffold (see [backend/README.md](backend/README.md)). Serves the frontend's `/api/*` contract and the built `frontend/dist`, and encodes the incident workflow as a LangGraph multi-agent orchestration. Every Databricks, MCP, Genie, and connector integration sits behind a typed stub interface, so it runs with no live dependencies.
 - [`docs/`](docs) — the authoritative [design specification](docs/design-specification.md) and [technology architecture](docs/technology-architecture.md).
-- [`app.yaml.example`](app.yaml.example) — Databricks App manifest scaffold template (finalized with the Python/FastAPI backend, which is a follow-up).
+- [`app.yaml`](app.yaml) — the deployable Databricks App manifest (runs the FastAPI backend, which serves the built frontend). [`app.yaml.example`](app.yaml.example) remains as the annotated template.
 
 ### Frontend quick start
 
@@ -19,6 +20,17 @@ npm run dev     # runs in mock mode — no backend required
 ```
 
 The frontend presents the operational lifecycle (Triage → War Room → Escalation → Change Request) plus a streaming Co-pilot chat, with every AI output shown as a proposal awaiting explicit human approval.
+
+### Backend quick start
+
+```bash
+cd backend
+uv sync --extra dev        # install dependencies
+uv run python -m app       # run locally (binds DATABRICKS_APP_PORT, default 8000)
+uv run pytest              # run the test suite
+```
+
+The backend runs with no live external dependencies: it seeds deterministic, spec-shaped incidents so the frontend can run in `live` mode against it same-origin. Microsoft Teams remains the authoritative approval surface; the browser console's mutating routes return `blocked`.
 
 ## Reference Architecture Topology
 

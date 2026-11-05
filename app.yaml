@@ -1,0 +1,60 @@
+# Databricks App manifest — Agentic AI Operations Support System.
+#
+# This app is served by the Python/FastAPI backend in `backend/`, which also serves the
+# built frontend assets from `frontend/dist`. Deploy from the repository root so both
+# `backend/` and `frontend/dist` are included.
+#
+# Invariants honored here (databricks-apps):
+#  - The app binds the injected DATABRICKS_APP_PORT at runtime. `python -m app` reads it
+#    (see backend/app/__main__.py); the port is never hardcoded.
+#  - Warehouses, Genie spaces, Unity Catalog securables, secrets, and peer apps are
+#    referenced as named resources and injected via `valueFrom` — never pasted inline.
+#  - External writes are disabled by default; enable them only in a governed environment.
+#  - If a databricks.yml is added, deploy through Databricks Asset Bundles rather than
+#    ad-hoc `databricks apps deploy`.
+
+command:
+  - "python"
+  - "-m"
+  - "app"
+
+env:
+  # Make the `app` package importable from the repo-root working directory.
+  - name: PYTHONPATH
+    value: "backend"
+
+  # Non-secret configuration (tech-arch §10). Names only — never secrets.
+  - name: ENABLE_EXTERNAL_WRITES
+    value: "false"
+  - name: USE_LIVE_INTEGRATIONS
+    value: "false"
+  - name: MODEL_ENDPOINT
+    value: "databricks-meta-llama-3-3-70b-instruct"
+  - name: MODEL_TIMEOUT_S
+    value: "30"
+  - name: UC_CATALOG
+    value: "system"
+  - name: UC_SCHEMA
+    value: "workflow"
+  - name: WEBHOOK_RATE_LIMIT_PER_MINUTE
+    value: "60"
+  - name: APPROVAL_POLICY
+    value: "teams"
+
+  # Resource- and secret-backed values are injected via valueFrom once the resources are
+  # declared (uncomment and point at the named resources for your workspace):
+  # - name: VECTOR_SEARCH_INDEX
+  #   valueFrom: vector-search-index
+  # - name: SQL_WAREHOUSE_ID
+  #   valueFrom: sql-warehouse
+  # - name: GENIE_SPACE
+  #   valueFrom: genie-space
+  # - name: SERVICENOW_WEBHOOK_SECRET
+  #   valueFrom: incident-secrets
+  # - name: JIRA_WEBHOOK_SECRET
+  #   valueFrom: incident-secrets
+  # - name: SKYBOT_WEBHOOK_SECRET
+  #   valueFrom: incident-secrets
+
+# Declare the matching resources (warehouse, Genie space, secret scope, UC securables)
+# in a databricks.yml Asset Bundle, then inject them above via valueFrom.

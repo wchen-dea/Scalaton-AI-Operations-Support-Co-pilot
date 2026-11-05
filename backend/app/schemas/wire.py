@@ -94,3 +94,20 @@ class OperationStatus(BaseModel):
 
 class CopilotPrompt(BaseModel):
     prompt: str
+    session_id: str | None = None
+    correlation_id: str | None = None
+
+
+class SessionMessageView(BaseModel):
+    session_id: str
+    correlation_id: str | None = None
+    actor_id: str
+    role: str
+    content_redacted: str
+    created_at: str
+    retention_until: str | None = None
+
+
+class CopilotSessionResponse(BaseModel):
+    session_id: str
+    messages: list[SessionMessageView]

@@ -9,6 +9,7 @@ frame shape matches `frontend/src/api/streamClient.ts` (`parseDataPayload`).
 from __future__ import annotations
 
 import json
+import uuid
 from typing import AsyncIterator
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,10 +20,12 @@ from ..schemas.wire import (
     ApprovalResult,
     ChangeRequestDraft,
     CopilotPrompt,
+    CopilotSessionResponse,
     IncidentDetail,
     IncidentListResponse,
     JiraDraft,
     JiraSubmitResult,
+    SessionMessageView,
 )
 from ..stubs.fixtures import mock_copilot_reply
 from .deps import get_service
@@ -76,7 +79,27 @@ def approve_change_request(correlation_id: str) -> ApprovalResult:
 
 
 @router.post("/copilot/stream")
-def copilot_stream(prompt: CopilotPrompt) -> StreamingResponse:
+def copilot_stream(
+    prompt: CopilotPrompt, service: WorkflowService = Depends(get_service)
+) -> StreamingResponse:
+    # Session memory survives restarts and is backend-governed, never browser storage
+    # (ADR-SCALATON-002 §5.2). Content is redacted before it is stored (§8).
+    session_id = prompt.session_id or f"sess-{uuid.uuid4().hex[:12]}"
+    service.record_session_message(
+        session_id=session_id,
+        role="user",
+        content=prompt.prompt,
+        actor_id="operator",
+        correlation_id=prompt.correlation_id,
+    )
+    service.record_session_message(
+        session_id=session_id,
+        role="assistant",
+        content=mock_copilot_reply,
+        actor_id="copilot",
+        correlation_id=prompt.correlation_id,
+    )
+
     async def event_stream() -> AsyncIterator[str]:
         words = mock_copilot_reply.split(" ")
         for index, word in enumerate(words):
@@ -84,4 +107,18 @@ def copilot_stream(prompt: CopilotPrompt) -> StreamingResponse:
             yield f"data: {json.dumps({'text': text, 'id': str(index)})}\n\n"
         yield "data: [DONE]\n\n"
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"x-session-id": session_id},
+    )
+
+
+@router.get("/copilot/sessions/{session_id}", response_model=CopilotSessionResponse)
+def get_copilot_session(
+    session_id: str, service: WorkflowService = Depends(get_service)
+) -> CopilotSessionResponse:
+    """Return the redacted conversation memory for a session (`ADR-SCALATON-002 §5.2`)."""
+
+    messages = [SessionMessageView(**m.model_dump()) for m in service.session_history(session_id)]
+    return CopilotSessionResponse(session_id=session_id, messages=messages)

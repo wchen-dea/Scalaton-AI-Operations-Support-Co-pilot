@@ -30,6 +30,7 @@ from ..connectors import (
 from ..mcp import GenieClient, MCPClient, StubGenieClient, build_registry
 from ..observability.logging import get_logger
 from ..reliability.deadletter import DeadLetterStore
+from ..storage import Repositories
 
 _log = get_logger("deps")
 
@@ -37,6 +38,7 @@ _log = get_logger("deps")
 @dataclass
 class Deps:
     settings: Settings
+    repos: Repositories
     audit: AuditStore
     dead_letter: DeadLetterStore
     model: ModelAdapter
@@ -59,11 +61,14 @@ class Deps:
                 "USE_LIVE_INTEGRATIONS is set but live adapters are not implemented; "
                 "using local stubs (plan decision D3)."
             )
-        audit = AuditStore()
+        repos = Repositories.build()
+        audit = repos.audit
+        dead_letter = repos.dead_letter
         return cls(
             settings=settings,
+            repos=repos,
             audit=audit,
-            dead_letter=DeadLetterStore(),
+            dead_letter=dead_letter,
             model=StubModelAdapter(),
             vector_search=StubVectorSearchAdapter(),
             diagnostics=StubDiagnosticsAdapter(),
